@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:icon="@drawable/baseline_home_24"
+        android:id="@+id/home"
+        android:title="Home" />
+    <item
+        android:icon="@drawable/baseline_settings_87"
+        android:id="@+id/settings"
+        android:title="@string/settings" />
+    <item
+        android:icon="@drawable/baseline_signal_wifi_statusbar_4_bar_24"
+        android:id="@+id/connection"
+        android:title="@string/connection" />
+    <item
+        android:icon="@drawable/baseline_file_copy_24"
+        android:id="@+id/data"
+        android:title="@string/data" />
+
+
+</menu>

@@ -1,0 +1,694 @@
+<html>
+<head>
+<title>Register7Activity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Register7Activity.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.example.myapplication2.Register</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">android.content.Intent</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.content.SharedPreferences</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.os.Bundle</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.os.Handler</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.os.Looper</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.view.View</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.Button</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">androidx.annotation.NonNull</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.appcompat.app.AppCompatActivity</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">com.example.myapplication2.ConectInsole</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.example.myapplication2.ConectInsole2</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.example.myapplication2.MDNSDiscovery</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.example.myapplication2.R</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">java.util.ArrayList</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">java.util.Calendar</span><span class="s0">;</span>
+
+<span class="s0">public class </span><span class="s1">Register7Activity </span><span class="s0">extends </span><span class="s1">AppCompatActivity {</span>
+    <span class="s0">private </span><span class="s1">ConectInsole conectar</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">ConectInsole2 conectar2</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">SharedPreferences sharedPreferences</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">Calendar calendar</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">String followInBoth</span><span class="s0">, </span><span class="s1">followInLeft</span><span class="s0">;</span>
+    <span class="s0">private short </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9</span><span class="s0">;</span>
+    <span class="s0">private byte </span><span class="s1">freq = </span><span class="s2">1</span><span class="s0">;</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) {</span>
+        <span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span><span class="s0">;</span>
+        <span class="s1">setContentView(R.layout.activity_register7)</span><span class="s0">;</span>
+
+        <span class="s1">sharedPreferences = getSharedPreferences(</span><span class="s3">&quot;My_Appinsolesamount&quot;</span><span class="s0">, </span><span class="s1">MODE_PRIVATE)</span><span class="s0">;</span>
+        <span class="s1">followInBoth = sharedPreferences.getString(</span><span class="s3">&quot;Sboth&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">followInLeft = sharedPreferences.getString(</span><span class="s3">&quot;Sleft&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+
+
+        <span class="s4">// Inicializar ConectInsole com o contexto da Activity</span>
+        <span class="s1">conectar = </span><span class="s0">new </span><span class="s1">ConectInsole(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">conectar2 = </span><span class="s0">new </span><span class="s1">ConectInsole2(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s4">// Inicialização das views e outros componentes</span>
+        <span class="s1">Button mNext7Btn = findViewById(R.id.btnNext7)</span><span class="s0">;</span>
+        <span class="s1">Button mTest1 = findViewById(R.id.buttontestinsole1)</span><span class="s0">;</span>
+        <span class="s1">Button mTest2 = findViewById(R.id.buttontestinsole2)</span><span class="s0">;</span>
+        <span class="s1">Button mTest1stop = findViewById(R.id.buttontestinsole1stop)</span><span class="s0">;</span>
+        <span class="s1">Button mTest2stop = findViewById(R.id.buttontestinsole2stop)</span><span class="s0">;</span>
+        <span class="s1">S1 = S2 = S3 = S4 = S5 = S6 = S7 = S8 = S9 = </span><span class="s2">0x1FFF</span><span class="s0">;</span>
+
+        <span class="s1">mTest1.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s1">sendCommand((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3A</span><span class="s0">, </span><span class="s1">freq)</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">mTest1stop.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s0">if </span><span class="s1">(followInBoth.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+                    <span class="s1">handleStopCommand((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, true</span><span class="s1">)</span><span class="s0">;</span>
+                    <span class="s1">handleStopCommand2((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, true</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s0">if </span><span class="s1">(followInLeft.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+                    <span class="s1">handleStopCommand2((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, true</span><span class="s1">)</span><span class="s0">;</span><span class="s1">}</span>
+                <span class="s0">else</span><span class="s1">{</span>
+                    <span class="s1">handleStopCommand((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, true</span><span class="s1">)</span><span class="s0">;</span><span class="s1">}</span>
+
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">mTest2.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s1">sendCommand((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3A</span><span class="s0">, </span><span class="s1">freq)</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">mTest2stop.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s0">if </span><span class="s1">(followInBoth.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+                    <span class="s1">handleStopCommand((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, false</span><span class="s1">)</span><span class="s0">;</span>
+                    <span class="s1">handleStopCommand2((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, false</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s0">if </span><span class="s1">(followInLeft.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+                    <span class="s1">handleStopCommand2((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, false</span><span class="s1">)</span><span class="s0">;</span><span class="s1">}</span>
+                <span class="s0">else</span><span class="s1">{</span>
+                    <span class="s1">handleStopCommand((</span><span class="s0">byte</span><span class="s1">) </span><span class="s2">0x3B</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, false</span><span class="s1">)</span><span class="s0">;</span><span class="s1">}</span>
+
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">mNext7Btn.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s1">startActivity(</span><span class="s0">new </span><span class="s1">Intent(getApplicationContext()</span><span class="s0">, </span><span class="s1">Register6Activity.</span><span class="s0">class</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">sendCommand(</span><span class="s0">byte </span><span class="s1">cmd</span><span class="s0">, byte </span><span class="s1">freq) {</span>
+        <span class="s1">calendar = Calendar.getInstance()</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">hour = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.HOUR_OF_DAY)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">minutes = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.MINUTE)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">seconds = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.SECOND)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">milliseconds = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.MILLISECOND)</span><span class="s0">;</span>
+        <span class="s1">S1 = S2 = S3 = S4 = S5 = S6 = S7 = S8 = S9 = </span><span class="s2">0x1FFF</span><span class="s0">;</span>
+
+        <span class="s0">if </span><span class="s1">(followInBoth.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">conectar2.createAndSendConfigData(cmd</span><span class="s0">, </span><span class="s1">hour</span><span class="s0">, </span><span class="s1">minutes</span><span class="s0">, </span><span class="s1">seconds</span><span class="s0">, </span><span class="s1">milliseconds</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9)</span><span class="s0">;</span>
+            <span class="s1">conectar.createAndSendConfigData(cmd</span><span class="s0">, </span><span class="s1">hour</span><span class="s0">, </span><span class="s1">minutes</span><span class="s0">, </span><span class="s1">seconds</span><span class="s0">, </span><span class="s1">milliseconds</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">if </span><span class="s1">(followInLeft.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">conectar2.createAndSendConfigData(cmd</span><span class="s0">, </span><span class="s1">hour</span><span class="s0">, </span><span class="s1">minutes</span><span class="s0">, </span><span class="s1">seconds</span><span class="s0">, </span><span class="s1">milliseconds</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9)</span><span class="s0">;</span><span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">conectar.createAndSendConfigData(cmd</span><span class="s0">, </span><span class="s1">hour</span><span class="s0">, </span><span class="s1">minutes</span><span class="s0">, </span><span class="s1">seconds</span><span class="s0">, </span><span class="s1">milliseconds</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">handleStopCommand(</span><span class="s0">byte </span><span class="s1">cmd</span><span class="s0">, byte </span><span class="s1">freq</span><span class="s0">, boolean </span><span class="s1">isWalking) {</span>
+
+            <span class="s1">sendCommand(cmd</span><span class="s0">, </span><span class="s1">freq)</span><span class="s0">;</span>
+
+            <span class="s0">new </span><span class="s1">Handler(Looper.getMainLooper()).postDelayed(() -&gt; {</span>
+                <span class="s1">conectar.receiveData(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span>
+            <span class="s1">}</span><span class="s0">, </span><span class="s2">2000</span><span class="s1">)</span><span class="s0">;</span>
+
+            <span class="s0">new </span><span class="s1">Handler(Looper.getMainLooper()).postDelayed(() -&gt; {</span>
+                <span class="s1">processReceivedData(conectar</span><span class="s0">, </span><span class="s1">isWalking)</span><span class="s0">;</span>
+            <span class="s1">}</span><span class="s0">, </span><span class="s2">3000</span><span class="s1">)</span><span class="s0">; </span><span class="s4">// Delay para permitir a recepção dos dados</span>
+    <span class="s1">}</span>
+
+
+    <span class="s0">private void </span><span class="s1">handleStopCommand2(</span><span class="s0">byte </span><span class="s1">cmd</span><span class="s0">, byte </span><span class="s1">freq</span><span class="s0">, boolean </span><span class="s1">isWalking) {</span>
+
+        <span class="s1">sendCommand(cmd</span><span class="s0">, </span><span class="s1">freq)</span><span class="s0">;</span>
+
+        <span class="s0">new </span><span class="s1">Handler(Looper.getMainLooper()).postDelayed(() -&gt; {</span>
+            <span class="s1">conectar2.receiveData(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">}</span><span class="s0">, </span><span class="s2">2000</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s0">new </span><span class="s1">Handler(Looper.getMainLooper()).postDelayed(() -&gt; {</span>
+            <span class="s1">processReceivedData2(conectar2</span><span class="s0">, </span><span class="s1">isWalking)</span><span class="s0">;</span>
+        <span class="s1">}</span><span class="s0">, </span><span class="s2">3000</span><span class="s1">)</span><span class="s0">; </span><span class="s4">// Delay para permitir a recepção dos dados</span>
+    <span class="s1">}</span>
+
+
+    <span class="s0">private void </span><span class="s1">processReceivedData(@NonNull ConectInsole insole</span><span class="s0">, boolean </span><span class="s1">isWalking) {</span>
+        <span class="s1">calendar = Calendar.getInstance()</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">hour = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.HOUR_OF_DAY)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">minutes = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.MINUTE)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">seconds = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.SECOND)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">milliseconds = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.MILLISECOND)</span><span class="s0">;</span>
+
+        <span class="s0">byte </span><span class="s1">cmd2 = insole.getCmd()</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">battery = insole.getBattery()</span><span class="s0">;</span>
+        <span class="s1">sharedPreferences = getSharedPreferences(</span><span class="s3">&quot;My_Appinsolereadings&quot;</span><span class="s0">, </span><span class="s1">MODE_PRIVATE)</span><span class="s0">;</span>
+        <span class="s1">String stSR1 = sharedPreferences.getString(</span><span class="s3">&quot;S1_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR2 = sharedPreferences.getString(</span><span class="s3">&quot;S2_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR3 = sharedPreferences.getString(</span><span class="s3">&quot;S3_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR4 = sharedPreferences.getString(</span><span class="s3">&quot;S4_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR5 = sharedPreferences.getString(</span><span class="s3">&quot;S5_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR6 = sharedPreferences.getString(</span><span class="s3">&quot;S6_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR7 = sharedPreferences.getString(</span><span class="s3">&quot;S7_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR8 = sharedPreferences.getString(</span><span class="s3">&quot;S8_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR9 = sharedPreferences.getString(</span><span class="s3">&quot;S9_1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">length = insole.getLength()</span><span class="s0">;</span>
+
+        <span class="s0">short</span><span class="s1">[] SR1 = stringToShortArray(stSR1)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR2 = stringToShortArray(stSR2)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR3 = stringToShortArray(stSR3)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR4 = stringToShortArray(stSR4)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR5 = stringToShortArray(stSR5)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR6 = stringToShortArray(stSR6)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR7 = stringToShortArray(stSR7)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR8 = stringToShortArray(stSR8)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR9 = stringToShortArray(stSR9)</span><span class="s0">;</span>
+
+        <span class="s0">short</span><span class="s1">[] limS</span><span class="s0">;</span>
+
+        <span class="s0">if </span><span class="s1">(isWalking) {</span>
+            <span class="s1">limS = thresholdSensors_walking(SR1</span><span class="s0">, </span><span class="s1">SR2</span><span class="s0">, </span><span class="s1">SR3</span><span class="s0">, </span><span class="s1">SR4</span><span class="s0">, </span><span class="s1">SR5</span><span class="s0">, </span><span class="s1">SR6</span><span class="s0">, </span><span class="s1">SR7</span><span class="s0">, </span><span class="s1">SR8</span><span class="s0">, </span><span class="s1">SR9)</span><span class="s0">;</span>
+        <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+            <span class="s1">limS = thresholdSensors_steady(SR1</span><span class="s0">, </span><span class="s1">SR2</span><span class="s0">, </span><span class="s1">SR3</span><span class="s0">, </span><span class="s1">SR4</span><span class="s0">, </span><span class="s1">SR5</span><span class="s0">, </span><span class="s1">SR6</span><span class="s0">, </span><span class="s1">SR7</span><span class="s0">, </span><span class="s1">SR8</span><span class="s0">, </span><span class="s1">SR9)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s1">S1 = limS[</span><span class="s2">0</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S2 = limS[</span><span class="s2">1</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S3 = limS[</span><span class="s2">2</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S4 = limS[</span><span class="s2">3</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S5 = limS[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S6 = limS[</span><span class="s2">5</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S7 = limS[</span><span class="s2">6</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S8 = limS[</span><span class="s2">7</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S9 = limS[</span><span class="s2">8</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">cmd1 = </span><span class="s2">0x2A</span><span class="s0">;</span>
+
+        <span class="s1">insole.createAndSendConfigData(cmd1</span><span class="s0">, </span><span class="s1">hour</span><span class="s0">, </span><span class="s1">minutes</span><span class="s0">, </span><span class="s1">seconds</span><span class="s0">, </span><span class="s1">milliseconds</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9)</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">processReceivedData2(@NonNull ConectInsole2 insole</span><span class="s0">, boolean </span><span class="s1">isWalking) {</span>
+        <span class="s1">calendar = Calendar.getInstance()</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">hour = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.HOUR_OF_DAY)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">minutes = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.MINUTE)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">seconds = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.SECOND)</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">milliseconds = (</span><span class="s0">byte</span><span class="s1">) calendar.get(Calendar.MILLISECOND)</span><span class="s0">;</span>
+
+        <span class="s0">byte </span><span class="s1">cmd2 = insole.getCmd_2()</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">battery = insole.getBattery_2()</span><span class="s0">;</span>
+        <span class="s1">sharedPreferences = getSharedPreferences(</span><span class="s3">&quot;My_Appinsolereadings2&quot;</span><span class="s0">, </span><span class="s1">MODE_PRIVATE)</span><span class="s0">;</span>
+        <span class="s1">String stSR1 = sharedPreferences.getString(</span><span class="s3">&quot;S1_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR2 = sharedPreferences.getString(</span><span class="s3">&quot;S2_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR3 = sharedPreferences.getString(</span><span class="s3">&quot;S3_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR4 = sharedPreferences.getString(</span><span class="s3">&quot;S4_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR5 = sharedPreferences.getString(</span><span class="s3">&quot;S5_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR6 = sharedPreferences.getString(</span><span class="s3">&quot;S6_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR7 = sharedPreferences.getString(</span><span class="s3">&quot;S7_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR8 = sharedPreferences.getString(</span><span class="s3">&quot;S8_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String stSR9 = sharedPreferences.getString(</span><span class="s3">&quot;S9_2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">length = insole.getLength_2()</span><span class="s0">;</span>
+
+        <span class="s0">short</span><span class="s1">[] SR1 = stringToShortArray(stSR1)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR2 = stringToShortArray(stSR2)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR3 = stringToShortArray(stSR3)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR4 = stringToShortArray(stSR4)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR5 = stringToShortArray(stSR5)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR6 = stringToShortArray(stSR6)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR7 = stringToShortArray(stSR7)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR8 = stringToShortArray(stSR8)</span><span class="s0">;</span>
+        <span class="s0">short</span><span class="s1">[] SR9 = stringToShortArray(stSR9)</span><span class="s0">;</span>
+
+        <span class="s0">short</span><span class="s1">[] limS</span><span class="s0">;</span>
+
+        <span class="s0">if </span><span class="s1">(isWalking) {</span>
+            <span class="s1">limS = thresholdSensors_walking(SR1</span><span class="s0">, </span><span class="s1">SR2</span><span class="s0">, </span><span class="s1">SR3</span><span class="s0">, </span><span class="s1">SR4</span><span class="s0">, </span><span class="s1">SR5</span><span class="s0">, </span><span class="s1">SR6</span><span class="s0">, </span><span class="s1">SR7</span><span class="s0">, </span><span class="s1">SR8</span><span class="s0">, </span><span class="s1">SR9)</span><span class="s0">;</span>
+        <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+            <span class="s1">limS = thresholdSensors_steady(SR1</span><span class="s0">, </span><span class="s1">SR2</span><span class="s0">, </span><span class="s1">SR3</span><span class="s0">, </span><span class="s1">SR4</span><span class="s0">, </span><span class="s1">SR5</span><span class="s0">, </span><span class="s1">SR6</span><span class="s0">, </span><span class="s1">SR7</span><span class="s0">, </span><span class="s1">SR8</span><span class="s0">, </span><span class="s1">SR9)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s1">S1 = limS[</span><span class="s2">0</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S2 = limS[</span><span class="s2">1</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S3 = limS[</span><span class="s2">2</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S4 = limS[</span><span class="s2">3</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S5 = limS[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S6 = limS[</span><span class="s2">5</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S7 = limS[</span><span class="s2">6</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S8 = limS[</span><span class="s2">7</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">S9 = limS[</span><span class="s2">8</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s0">byte </span><span class="s1">cmd1 = </span><span class="s2">0x2A</span><span class="s0">;</span>
+
+        <span class="s1">insole.createAndSendConfigData(cmd1</span><span class="s0">, </span><span class="s1">hour</span><span class="s0">, </span><span class="s1">minutes</span><span class="s0">, </span><span class="s1">seconds</span><span class="s0">, </span><span class="s1">milliseconds</span><span class="s0">, </span><span class="s1">freq</span><span class="s0">, </span><span class="s1">S1</span><span class="s0">, </span><span class="s1">S2</span><span class="s0">, </span><span class="s1">S3</span><span class="s0">, </span><span class="s1">S4</span><span class="s0">, </span><span class="s1">S5</span><span class="s0">, </span><span class="s1">S6</span><span class="s0">, </span><span class="s1">S7</span><span class="s0">, </span><span class="s1">S8</span><span class="s0">, </span><span class="s1">S9)</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public short</span><span class="s1">[] thresholdSensors_walking(</span><span class="s0">short</span><span class="s1">[] s1</span><span class="s0">, short</span><span class="s1">[] s2</span><span class="s0">, short</span><span class="s1">[] s3</span><span class="s0">, short</span><span class="s1">[] s4</span><span class="s0">, short</span><span class="s1">[] s5</span><span class="s0">, short</span><span class="s1">[] s6</span><span class="s0">,short</span><span class="s1">[] s7</span><span class="s0">,short</span><span class="s1">[] s8</span><span class="s0">,short</span><span class="s1">[] s9) {</span>
+
+        <span class="s0">short</span><span class="s1">[] limS = </span><span class="s0">new short</span><span class="s1">[</span><span class="s2">9</span><span class="s1">]</span><span class="s0">;</span>
+
+        <span class="s4">//Calculo do limiar de cada sensor</span>
+        <span class="s1">ArrayList&lt;Short&gt; meanOne = getMeanpeaks(s1)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim1 = getMean(meanOne)</span><span class="s0">;</span>
+        <span class="s1">String hex1 = Integer.toHexString(lim1)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanTwo = getMeanpeaks(s2)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim2 = getMean(meanTwo)</span><span class="s0">;</span>
+        <span class="s1">String hex2 = Integer.toHexString(lim2)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanThree = getMeanpeaks(s3)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim3 = getMean(meanThree)</span><span class="s0">;</span>
+        <span class="s1">String hex3 = Integer.toHexString(lim3)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanFour = getMeanpeaks(s4)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim4 = getMean(meanFour)</span><span class="s0">;</span>
+        <span class="s1">String hex4 = Integer.toHexString(lim4)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanFive = getMeanpeaks(s5)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim5 = getMean(meanFive)</span><span class="s0">;</span>
+        <span class="s1">String hex5 = Integer.toHexString(lim5)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanSix = getMeanpeaks(s6)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim6 = getMean(meanSix)</span><span class="s0">;</span>
+        <span class="s1">String hex6 = Integer.toHexString(lim6)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanSeven = getMeanpeaks(s7)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim7 = getMean(meanSeven)</span><span class="s0">;</span>
+        <span class="s1">String hex7 = Integer.toHexString(lim7)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanEight = getMeanpeaks(s8)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim8 = getMean(meanEight)</span><span class="s0">;</span>
+        <span class="s1">String hex8 = Integer.toHexString(lim8)</span><span class="s0">;</span>
+
+        <span class="s1">ArrayList&lt;Short&gt; meanNine = getMeanpeaks(s9)</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">lim9 = getMean(meanNine)</span><span class="s0">;</span>
+        <span class="s1">String hex9 = Integer.toHexString(lim9)</span><span class="s0">;</span>
+
+
+        <span class="s4">//Buscar quais regiões foram selecionadas como de interesse</span>
+        <span class="s1">sharedPreferences = getSharedPreferences(</span><span class="s3">&quot;My_Appregions&quot;</span><span class="s0">, </span><span class="s1">MODE_PRIVATE)</span><span class="s0">;</span>
+        <span class="s1">String regionOne = sharedPreferences.getString(</span><span class="s3">&quot;S1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionTwo = sharedPreferences.getString(</span><span class="s3">&quot;S2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionThree = sharedPreferences.getString(</span><span class="s3">&quot;S3&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionFour = sharedPreferences.getString(</span><span class="s3">&quot;S4&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionFive = sharedPreferences.getString(</span><span class="s3">&quot;S5&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionSix = sharedPreferences.getString(</span><span class="s3">&quot;S6&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionSeven = sharedPreferences.getString(</span><span class="s3">&quot;S7&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionEight = sharedPreferences.getString(</span><span class="s3">&quot;S8&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionNine = sharedPreferences.getString(</span><span class="s3">&quot;S9&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionNone = sharedPreferences.getString(</span><span class="s3">&quot;Sn&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s0">short </span><span class="s1">hex1S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex1</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex2S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex2</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex3S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex3</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex4S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex4</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex5S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex5</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex6S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex6</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex7S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex7</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex8S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex8</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex9S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex9</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s4">//Se uma região for de interesse, a variável limiar deve habilitar leitura e evento, caso contrário, apenas leitura</span>
+        <span class="s0">if</span><span class="s1">(regionOne.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">0</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex1S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">0</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex1S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 2 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionTwo.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">1</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex2S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">1</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex2S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 3 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionThree.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">2</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex3S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">2</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex3S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 4 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionFour.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">3</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex4S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">3</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex4S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 5 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionFive.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">4</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex5S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">4</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex5S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 6 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionSix.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">5</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex6S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">5</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex6S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 7 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionSeven.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">6</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex7S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">6</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex7S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 8 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionEight.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">7</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex8S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">7</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex8S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 9 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionNine.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">8</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex9S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">8</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex9S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Não há região de interesse -----------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionNone.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">0</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex1S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">1</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex2S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">2</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex3S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">3</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex4S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">4</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex5S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">5</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex6S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">6</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex7S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">7</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex8S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">8</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex9S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s0">return </span><span class="s1">limS</span><span class="s0">;</span>
+
+    <span class="s1">}</span>
+
+
+    <span class="s0">public short</span><span class="s1">[] thresholdSensors_steady(</span><span class="s0">short</span><span class="s1">[] s1</span><span class="s0">, short</span><span class="s1">[] s2</span><span class="s0">, short</span><span class="s1">[] s3</span><span class="s0">, short</span><span class="s1">[] s4</span><span class="s0">, short</span><span class="s1">[] s5</span><span class="s0">, short</span><span class="s1">[] s6</span><span class="s0">,short</span><span class="s1">[] s7</span><span class="s0">,short</span><span class="s1">[] s8</span><span class="s0">,short</span><span class="s1">[] s9) {</span>
+
+        <span class="s0">short</span><span class="s1">[] limS = </span><span class="s0">new short</span><span class="s1">[</span><span class="s2">9</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL1 = convertArrayToList(s1)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL2 = convertArrayToList(s2)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL3 = convertArrayToList(s3)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL4 = convertArrayToList(s4)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL5 = convertArrayToList(s5)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL6 = convertArrayToList(s6)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL7 = convertArrayToList(s7)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL8 = convertArrayToList(s8)</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Short&gt; sL9 = convertArrayToList(s9)</span><span class="s0">;</span>
+
+        <span class="s4">//Calculo do limiar de cada sensor</span>
+        <span class="s0">int </span><span class="s1">lim1 = getMean(sL1)</span><span class="s0">;</span>
+        <span class="s1">String hex1 = Integer.toHexString(lim1)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim2 = getMean(sL2)</span><span class="s0">;</span>
+        <span class="s1">String hex2 = Integer.toHexString(lim2)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim3 = getMean(sL3)</span><span class="s0">;</span>
+        <span class="s1">String hex3 = Integer.toHexString(lim3)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim4 = getMean(sL4)</span><span class="s0">;</span>
+        <span class="s1">String hex4 = Integer.toHexString(lim4)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim5 = getMean(sL5)</span><span class="s0">;</span>
+        <span class="s1">String hex5 = Integer.toHexString(lim5)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim6 = getMean(sL6)</span><span class="s0">;</span>
+        <span class="s1">String hex6 = Integer.toHexString(lim6)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim7 = getMean(sL7)</span><span class="s0">;</span>
+        <span class="s1">String hex7 = Integer.toHexString(lim7)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim8 = getMean(sL8)</span><span class="s0">;</span>
+        <span class="s1">String hex8 = Integer.toHexString(lim8)</span><span class="s0">;</span>
+
+        <span class="s0">int </span><span class="s1">lim9 = getMean(sL9)</span><span class="s0">;</span>
+        <span class="s1">String hex9 = Integer.toHexString(lim9)</span><span class="s0">;</span>
+
+        <span class="s0">short </span><span class="s1">hex1S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex1</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex2S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex2</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex3S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex3</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex4S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex4</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex5S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex5</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex6S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex6</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex7S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex7</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex8S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex8</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">hex9S = (</span><span class="s0">short</span><span class="s1">) Integer.parseInt(hex9</span><span class="s0">, </span><span class="s2">16</span><span class="s1">)</span><span class="s0">;</span>
+
+
+        <span class="s4">//Buscar quais regiões foram selecionadas como de interesse</span>
+        <span class="s1">sharedPreferences = getSharedPreferences(</span><span class="s3">&quot;My_Appregions&quot;</span><span class="s0">, </span><span class="s1">MODE_PRIVATE)</span><span class="s0">;</span>
+        <span class="s1">String regionOne = sharedPreferences.getString(</span><span class="s3">&quot;S1&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionTwo = sharedPreferences.getString(</span><span class="s3">&quot;S2&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionThree = sharedPreferences.getString(</span><span class="s3">&quot;S3&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionFour = sharedPreferences.getString(</span><span class="s3">&quot;S4&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionFive = sharedPreferences.getString(</span><span class="s3">&quot;S5&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionSix = sharedPreferences.getString(</span><span class="s3">&quot;S6&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionSeven = sharedPreferences.getString(</span><span class="s3">&quot;S7&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionEight = sharedPreferences.getString(</span><span class="s3">&quot;S8&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionNine = sharedPreferences.getString(</span><span class="s3">&quot;S9&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">String regionNone = sharedPreferences.getString(</span><span class="s3">&quot;Sn&quot;</span><span class="s0">, </span><span class="s3">&quot;default&quot;</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s4">//Se uma região for de interesse, a variável limiar deve habilitar leitura e evento, caso contrário, apenas leitura</span>
+        <span class="s0">if</span><span class="s1">(regionOne.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">0</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex1S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">0</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex1S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 2 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionTwo.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">1</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex2S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">1</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex2S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 3 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionThree.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">2</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex3S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">2</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex3S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 4 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionFour.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">3</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex4S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">3</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex4S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 5 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionFive.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">4</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex5S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">4</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex5S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 6 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionSix.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">5</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex6S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">5</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex6S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 7 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionSeven.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">6</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex7S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">6</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex7S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 8 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionEight.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">7</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex8S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">7</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex8S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Sensor 9 -----------------------------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionNine.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">8</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x3 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex9S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">else</span><span class="s1">{</span>
+            <span class="s1">limS[</span><span class="s2">8</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex9S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s4">// Não há região de interesse -----------------------------------------------------------</span>
+        <span class="s0">if</span><span class="s1">(regionNone.equals(</span><span class="s3">&quot;true&quot;</span><span class="s1">)){</span>
+            <span class="s1">limS[</span><span class="s2">0</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex1S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">1</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex2S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">2</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex3S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">3</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex4S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">4</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex5S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">5</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex6S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">6</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex7S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">7</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex8S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+            <span class="s1">limS[</span><span class="s2">8</span><span class="s1">] = (</span><span class="s0">short</span><span class="s1">) ((</span><span class="s2">0x1 </span><span class="s1">&lt;&lt; </span><span class="s2">12</span><span class="s1">) | (hex9S &amp; </span><span class="s2">0xFFF</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+
+        <span class="s0">return </span><span class="s1">limS</span><span class="s0">;</span>
+
+    <span class="s1">}</span>
+
+
+    <span class="s1">@NonNull</span>
+    <span class="s0">public static </span><span class="s1">ArrayList&lt;Short&gt; getMeanpeaks(</span><span class="s0">short</span><span class="s1">[] readings) {</span>
+        <span class="s1">ArrayList&lt;Short&gt; meanPeaks = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span>
+        <span class="s1">ArrayList&lt;Integer&gt; positionPeak = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">max = findMax(readings)</span><span class="s0">;</span>
+        <span class="s0">short </span><span class="s1">min = findMin(readings)</span><span class="s0">;</span>
+
+        <span class="s4">// Calcular a diferença entre o valor máximo e o valor mínimo</span>
+        <span class="s0">int </span><span class="s1">difference = max - min</span><span class="s0">;</span>
+
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s2">1</span><span class="s0">; </span><span class="s1">i &lt; readings.length - </span><span class="s2">1</span><span class="s0">; </span><span class="s1">i++) {</span>
+            <span class="s0">if </span><span class="s1">(readings[i] &gt; readings[i - </span><span class="s2">1</span><span class="s1">] &amp;&amp; readings[i] &gt; readings[i + </span><span class="s2">1</span><span class="s1">]) {</span>
+                <span class="s1">positionPeak.add(i)</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s2">0</span><span class="s0">; </span><span class="s1">j &lt; positionPeak.size()</span><span class="s0">; </span><span class="s1">j++) {</span>
+            <span class="s0">int </span><span class="s1">sumP = readings[positionPeak.get(j)]</span><span class="s0">;</span>
+            <span class="s0">int </span><span class="s1">divD = </span><span class="s2">1</span><span class="s0">;</span>
+            <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s2">1</span><span class="s0">; </span><span class="s1">k &lt; </span><span class="s2">20</span><span class="s0">; </span><span class="s1">k++) {</span>
+                <span class="s0">if </span><span class="s1">(positionPeak.get(j) - k &gt;= </span><span class="s2">0 </span><span class="s1">&amp;&amp;</span>
+                        <span class="s1">(j + </span><span class="s2">1 </span><span class="s1">&lt; positionPeak.size() &amp;&amp; positionPeak.get(j) - k &lt; positionPeak.get(j + </span><span class="s2">1</span><span class="s1">)) &amp;&amp;</span>
+                        <span class="s1">(readings[positionPeak.get(j)] - readings[positionPeak.get(j) - k]) &lt; (</span><span class="s2">0.2 </span><span class="s1">* difference)) {</span>
+                    <span class="s1">sumP += readings[positionPeak.get(j) - k]</span><span class="s0">;</span>
+                    <span class="s1">divD++</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s0">if </span><span class="s1">(positionPeak.get(j) + k &lt; readings.length &amp;&amp;</span>
+                        <span class="s1">(j + </span><span class="s2">1 </span><span class="s1">&lt; positionPeak.size() &amp;&amp; positionPeak.get(j) + k &lt; positionPeak.get(j + </span><span class="s2">1</span><span class="s1">)) &amp;&amp;</span>
+                        <span class="s1">(readings[positionPeak.get(j)] - readings[positionPeak.get(j) + k]) &lt; (</span><span class="s2">0.2 </span><span class="s1">* difference)) {</span>
+                    <span class="s1">sumP += readings[positionPeak.get(j) + k]</span><span class="s0">;</span>
+                    <span class="s1">divD++</span><span class="s0">;</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+
+            <span class="s0">int </span><span class="s1">meanP = sumP / divD</span><span class="s0">;</span>
+            <span class="s1">meanPeaks.add((</span><span class="s0">short</span><span class="s1">) meanP)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s0">return </span><span class="s1">meanPeaks</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+
+    <span class="s0">public int </span><span class="s1">getMean(@NonNull ArrayList&lt;Short&gt; arraymean){</span>
+        <span class="s0">int </span><span class="s1">finalMean</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">sumM = </span><span class="s2">1</span><span class="s0">;</span>
+        <span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">Value:arraymean){</span>
+            <span class="s1">sumM = sumM + Value</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s1">finalMean = sumM/(arraymean.size())</span><span class="s0">;</span>
+        <span class="s0">return </span><span class="s1">finalMean</span><span class="s0">;</span>
+
+    <span class="s1">}</span>
+
+
+
+    <span class="s0">public static short </span><span class="s1">findMax(@NonNull </span><span class="s0">short</span><span class="s1">[] array) {</span>
+        <span class="s0">short </span><span class="s1">max = array[</span><span class="s2">0</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s2">1</span><span class="s0">; </span><span class="s1">i &lt; array.length</span><span class="s0">; </span><span class="s1">i++) {</span>
+            <span class="s0">if </span><span class="s1">(array[i] &gt; max) {</span>
+                <span class="s1">max = array[i]</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+        <span class="s0">return </span><span class="s1">max</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s4">// Função para encontrar o valor mínimo em um array de valores short</span>
+    <span class="s0">public static short </span><span class="s1">findMin(@NonNull </span><span class="s0">short</span><span class="s1">[] array) {</span>
+        <span class="s0">short </span><span class="s1">min = array[</span><span class="s2">0</span><span class="s1">]</span><span class="s0">;</span>
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s2">1</span><span class="s0">; </span><span class="s1">i &lt; array.length</span><span class="s0">; </span><span class="s1">i++) {</span>
+            <span class="s0">if </span><span class="s1">(array[i] &lt; min) {</span>
+                <span class="s1">min = array[i]</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+        <span class="s0">return </span><span class="s1">min</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@NonNull</span>
+    <span class="s0">public static </span><span class="s1">ArrayList&lt;Short&gt; convertArrayToList(@NonNull </span><span class="s0">short</span><span class="s1">[] array) {</span>
+        <span class="s4">// Criando um novo ArrayList&lt;Short&gt;</span>
+        <span class="s1">ArrayList&lt;Short&gt; list = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span>
+
+        <span class="s4">// Percorrendo o array de short e adicionando cada elemento ao ArrayList</span>
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">short </span><span class="s1">value : array) {</span>
+            <span class="s1">list.add(value)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s0">return </span><span class="s1">list</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public static short</span><span class="s1">[] stringToShortArray(String arrayString) {</span>
+        <span class="s4">// Remove colchetes e espaços da string</span>
+        <span class="s1">arrayString = arrayString.replace(</span><span class="s3">&quot;[&quot;</span><span class="s0">, </span><span class="s3">&quot;&quot;</span><span class="s1">).replace(</span><span class="s3">&quot;]&quot;</span><span class="s0">, </span><span class="s3">&quot;&quot;</span><span class="s1">).trim()</span><span class="s0">;</span>
+
+        <span class="s4">// Divide a string em elementos individuais</span>
+        <span class="s1">String[] stringArray = arrayString.split(</span><span class="s3">&quot;, &quot;</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s4">// Converte os elementos para shorts</span>
+        <span class="s0">short</span><span class="s1">[] shortArray = </span><span class="s0">new short</span><span class="s1">[stringArray.length]</span><span class="s0">;</span>
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s2">0</span><span class="s0">; </span><span class="s1">i &lt; stringArray.length</span><span class="s0">; </span><span class="s1">i++) {</span>
+            <span class="s1">shortArray[i] = Short.parseShort(stringArray[i])</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+        <span class="s0">return </span><span class="s1">shortArray</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+<span class="s1">}</span>
+</pre>
+</body>
+</html>

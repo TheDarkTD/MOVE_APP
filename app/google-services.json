@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "748047056495",
+    "firebase_url": "https://bioapp-496ae-default-rtdb.firebaseio.com",
+    "project_id": "bioapp-496ae",
+    "storage_bucket": "bioapp-496ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748047056495:android:dcf797922bc2516064579a",
+        "android_client_info": {
+          "package_name": "com.example.myapplication2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPbBNvM-4z8v5BLTy86jpjCQYp6o9N62I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
