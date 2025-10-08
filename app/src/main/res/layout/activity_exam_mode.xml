@@ -1,29 +1,36 @@
-<!-- app/src/main/res/layout/activity_exam_mode.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:padding="24dp"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/blue4">
+    android:orientation="vertical" android:gravity="center"
+    android:padding="24dp" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/blue1">
 
     <TextView
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Selecione o modo do exame" android:textSize="20sp"
-        android:textColor="@color/white" android:textStyle="bold" />
+        android:id="@+id/tvCpf"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textColor="@color/white" android:textSize="18sp"
+        android:text="CPF:"/>
+
+    <Space android:layout_width="0dp" android:layout_height="24dp"/>
 
     <Button
-        android:id="@+id/btnStatic"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Estático (10s)" android:layout_marginTop="16dp"
-        android:background="@drawable/roundstyle" android:textColor="@color/white" />
+        android:id="@+id/btnEstatico"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:text="Exame Estático (10s)"
+        android:textStyle="bold" android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
+
+    <Space android:layout_width="0dp" android:layout_height="12dp"/>
 
     <Button
-        android:id="@+id/btnMovement"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Em movimento" android:layout_marginTop="12dp"
-        android:background="@drawable/roundstyle" android:textColor="@color/white" />
+        android:id="@+id/btnMovimento"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:text="Exame em Movimento"
+        android:textStyle="bold" android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
+
+    <Space android:layout_width="0dp" android:layout_height="24dp"/>
 
     <Button
         android:id="@+id/btnBackToHub"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Voltar" android:layout_marginTop="32dp"
-        android:background="@drawable/roundstyle" android:textColor="@color/white" />
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:text="Voltar"
+        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
 </LinearLayout>

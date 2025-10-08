@@ -1,47 +1,41 @@
-// app/src/main/java/com/example/myapplication2/exam/ExamModeActivity.java
 package com.example.myapplication2.exam;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication2.R;
-import com.example.myapplication2.patient.PatientHubActivity;
 import com.example.myapplication2.Home.HomeActivity;
+import com.example.myapplication2.R;
 
 public class ExamModeActivity extends AppCompatActivity {
 
-    public static final String EXTRA_CPF  = "extra_cpf";
-    public static final String EXTRA_MODE = "extra_mode"; // "movimento" | "estatico"
-
-    private String cpf;
+    public static final String EXTRA_CPF = "extra_cpf";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exam_mode);
 
-        cpf = getIntent().getStringExtra(EXTRA_CPF);
-        if (cpf == null) { finish(); return; }
+        String cpf = getIntent().getStringExtra(EXTRA_CPF);
+        TextView tv = findViewById(R.id.tvCpf);
+        tv.setText("CPF: " + cpf);
 
-        Button btnStatic    = findViewById(R.id.btnStatic);
-        Button btnMovement  = findViewById(R.id.btnMovement);
-        Button btnBack      = findViewById(R.id.btnBackToHub);
+        Button btnEst = findViewById(R.id.btnEstatico);
+        Button btnMov = findViewById(R.id.btnMovimento);
+        Button btnBack= findViewById(R.id.btnBackToHub);
 
-        btnStatic.setOnClickListener(v -> openHome("estatico"));
-        btnMovement.setOnClickListener(v -> openHome("movimento"));
-        btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(this, PatientHubActivity.class));
-            finish();
-        });
+        btnEst.setOnClickListener(v -> goHome(cpf, "estatico"));
+        btnMov.setOnClickListener(v -> goHome(cpf, "movimento"));
+        btnBack.setOnClickListener(v -> finish()); // volta para o hub
     }
 
-    private void openHome(String mode) {
+    private void goHome(String cpf, String mode) {
         Intent it = new Intent(this, HomeActivity.class);
-        it.putExtra(EXTRA_CPF, cpf);
-        it.putExtra(EXTRA_MODE, mode);
+        it.putExtra(HomeActivity.EXTRA_CPF, cpf);
+        it.putExtra(HomeActivity.EXTRA_MODE, mode);
         startActivity(it);
         finish();
     }

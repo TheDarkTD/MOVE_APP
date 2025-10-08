@@ -72,88 +72,12 @@
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".Register.Register1Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".Register.Register2Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".Register.Register3Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".Register.Register4_1Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".Register.Register5_1Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".Register.Register6_1Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".Register.Register4Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".Register.Register5Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".Register.Register6Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-
-
-        <activity android:name=".Register.Register7Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".Register.Register8Activity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name=".Register.Register9Activity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
-
-
-
         <activity android:name=".Home.HomeActivity"
             android:exported="true">
             <intent-filter>
@@ -188,6 +112,31 @@
         <activity android:name=".Settings.VibraActivity"></activity>
         <activity android:name=".Settings.UseInstructionsActivity"></activity>
 
+        <!-- Hub de pacientes: tela com "Buscar" ou "Cadastrar" -->
+        <activity
+            android:name=".patient.PatientHubActivity"
+            android:exported="false" />
+
+        <!-- Buscar paciente cadastrado -->
+        <activity
+            android:name=".patient.PatientSearchActivity"
+            android:exported="false" />
+
+        <!-- Cadastrar novo paciente -->
+        <activity
+            android:name=".patient.PatientFormActivity"
+            android:exported="false" />
+
+        <!-- Escolha do modo do exame (Estático x Movimento) -->
+        <activity
+            android:name=".exam.ExamModeActivity"
+            android:exported="false"
+            android:parentActivityName=".patient.PatientHubActivity">
+            <!-- Suporte ao "up button" em versões antigas -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".patient.PatientHubActivity" />
+        </activity>
 
 
     </application>

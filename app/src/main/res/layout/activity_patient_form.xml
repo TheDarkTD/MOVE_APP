@@ -1,50 +1,82 @@
-<!-- app/src/main/res/layout/activity_patient_form.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/blue4">
+    android:background="@color/blue1" android:padding="16dp">
 
     <LinearLayout
-        android:orientation="vertical" android:padding="24dp"
-        android:layout_width="match_parent" android:layout_height="wrap_content">
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <EditText
-            android:id="@+id/etName"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:hint="Nome *" android:textColor="@color/white"
-            android:textColorHint="@color/white" android:background="#005E4A4A"/>
+            android:id="@+id/etNome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#005E4A4A"
+            android:hint="Nome"
+            android:minHeight="48dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+        <Space android:layout_width="0dp" android:layout_height="8dp"/>
 
         <EditText
-            android:id="@+id/etCpf"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:hint="CPF * (apenas números)" android:inputType="number"
-            android:textColor="@color/white" android:textColorHint="@color/white"
-            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+            android:id="@+id/etCPF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#005E4A4A"
+            android:hint="CPF (obrigatório)"
+            android:minHeight="48dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+        <Space android:layout_width="0dp" android:layout_height="8dp"/>
 
         <EditText
-            android:id="@+id/etWeight"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:hint="Peso (kg) *" android:inputType="numberDecimal"
-            android:textColor="@color/white" android:textColorHint="@color/white"
-            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+            android:id="@+id/etPeso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#005E4A4A"
+            android:hint="Peso (kg)"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+        <Space android:layout_width="0dp" android:layout_height="8dp"/>
 
         <EditText
-            android:id="@+id/etHeight"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:hint="Altura (m) *" android:inputType="numberDecimal"
-            android:textColor="@color/white" android:textColorHint="@color/white"
-            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+            android:id="@+id/etAltura"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#005E4A4A"
+            android:hint="Altura (m)"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+        <Space android:layout_width="0dp" android:layout_height="8dp"/>
 
         <EditText
-            android:id="@+id/etShoe"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:hint="Nº do calçado (opcional)" android:inputType="number"
-            android:textColor="@color/white" android:textColorHint="@color/white"
-            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+            android:id="@+id/etCalcado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#005E4A4A"
+            android:hint="Tamanho do calçado (opcional)"
+            android:minHeight="48dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
 
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Salvar" android:layout_marginTop="16dp"
-            android:background="@drawable/roundstyle" android:textColor="@color/white"/>
+        <Space android:layout_width="0dp" android:layout_height="16dp"/>
+
+        <Button android:id="@+id/btnSalvarPaciente"
+            android:layout_width="match_parent" android:layout_height="56dp"
+            android:text="Salvar e continuar" android:textStyle="bold"
+            android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
     </LinearLayout>
 </ScrollView>

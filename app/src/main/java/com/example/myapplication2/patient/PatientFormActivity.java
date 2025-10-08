@@ -1,76 +1,79 @@
-// app/src/main/java/com/example/myapplication2/patient/PatientFormActivity.java
 package com.example.myapplication2.patient;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.myapplication2.R;
-import com.google.firebase.auth.*;
+import com.example.myapplication2.exam.ExamModeActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class PatientFormActivity extends AppCompatActivity {
 
-    private EditText etName, etCpf, etWeight, etHeight, etShoe;
-    private Button btnSave;
-    private PatientDao dao;
+    private EditText etNome, etCPF, etPeso, etAltura, etCalcado;
+    private DatabaseReference base;
 
+    public static class Patient {
+        public String cpf, nome, calcado;
+        public float peso, altura;
+        public Patient() {}
+        public Patient(String cpf, String nome, float peso, float altura, String calcado) {
+            this.cpf = cpf; this.nome = nome; this.peso = peso; this.altura = altura; this.calcado = calcado;
+        }
+    }
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_form);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) { finish(); return; }
-        dao = new PatientDao(user.getUid());
+        etNome   = findViewById(R.id.etNome);
+        etCPF    = findViewById(R.id.etCPF);
+        etPeso   = findViewById(R.id.etPeso);
+        etAltura = findViewById(R.id.etAltura);
+        etCalcado= findViewById(R.id.etCalcado);
 
-        etName   = findViewById(R.id.etName);
-        etCpf    = findViewById(R.id.etCpf);
-        etWeight = findViewById(R.id.etWeight);
-        etHeight = findViewById(R.id.etHeight);
-        etShoe   = findViewById(R.id.etShoe);
-        btnSave  = findViewById(R.id.btnSave);
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        base = FirebaseDatabase.getInstance("https://bioapp-496ae-default-rtdb.firebaseio.com/")
+                .getReference().child("Users").child(uid).child("patients");
 
-        btnSave.setOnClickListener(v -> savePatient());
+        Button btnSalvar = findViewById(R.id.btnSalvarPaciente);
+        btnSalvar.setOnClickListener(v -> saveAndGoToExam());
     }
 
-    private void savePatient() {
-        String name   = etName.getText().toString().trim();
-        String cpfRaw = etCpf.getText().toString().trim();
-        String cpf    = PatientDao.normalizeCpf(cpfRaw);
-        String wStr   = etWeight.getText().toString().trim();
-        String hStr   = etHeight.getText().toString().trim();
-        String shoeStr= etShoe.getText().toString().trim();
+    private void saveAndGoToExam() {
+        String cpf = etCPF.getText().toString().trim();
+        String nome = etNome.getText().toString().trim();
+        String calcado = etCalcado.getText().toString().trim();
+        float peso = parseFloatOrZero(etPeso.getText().toString().trim());
+        float altura = parseFloatOrZero(etAltura.getText().toString().trim());
 
-        if (TextUtils.isEmpty(name)) { etName.setError("Nome obrigatório"); return; }
-        if (TextUtils.isEmpty(cpf) || cpf.length()!=11) { etCpf.setError("CPF obrigatório (11 dígitos)"); return; }
-        if (TextUtils.isEmpty(wStr)) { etWeight.setError("Peso obrigatório"); return; }
-        if (TextUtils.isEmpty(hStr)) { etHeight.setError("Altura obrigatória"); return; }
+        if (TextUtils.isEmpty(cpf)) { etCPF.setError("CPF é obrigatório"); return; }
+        if (TextUtils.isEmpty(nome)) { etNome.setError("Nome é obrigatório"); return; }
 
-        Double weight, height;
-        try {
-            weight = Double.parseDouble(wStr.replace(",", "."));
-            height = Double.parseDouble(hStr.replace(",", "."));
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Peso/Altura inválidos", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        Patient p = new Patient(cpf, nome, peso, altura, calcado);
 
-        Integer shoe = null;
-        if (!TextUtils.isEmpty(shoeStr)) {
-            try { shoe = Integer.parseInt(shoeStr); }
-            catch (NumberFormatException e) { etShoe.setError("Número de calçado inválido"); return; }
-        }
+        base.child(cpf).child("_profile").setValue(p)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Paciente salvo!", Toast.LENGTH_SHORT).show();
+                    Intent it = new Intent(this, ExamModeActivity.class);
+                    it.putExtra(ExamModeActivity.EXTRA_CPF, cpf);
+                    startActivity(it);
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show());
+    }
 
-        Patient p = new Patient(cpf, name, weight, height, shoe);
-
-        dao.save(p).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Toast.makeText(this, "Paciente salvo", Toast.LENGTH_SHORT).show();
-                finish(); // volta ao Hub
-            } else {
-                Toast.makeText(this, "Falha ao salvar: " +
-                        (task.getException()!=null? task.getException().getMessage() : ""), Toast.LENGTH_LONG).show();
-            }
-        });
+    private float parseFloatOrZero(String s) {
+        try { return Float.parseFloat(s); } catch (Exception e) { return 0f; }
     }
 }

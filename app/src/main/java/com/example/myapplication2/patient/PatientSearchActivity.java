@@ -1,58 +1,82 @@
-// app/src/main/java/com/example/myapplication2/patient/PatientSearchActivity.java
 package com.example.myapplication2.patient;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.*;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.myapplication2.R;
-import com.google.firebase.auth.*;
+import com.example.myapplication2.exam.ExamModeActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.*;
+
+import android.content.Intent;
 
 public class PatientSearchActivity extends AppCompatActivity {
 
-    private EditText etCpf;
-    private Button btnSearch;
+    private EditText etCPF;
     private TextView tvResult;
-    private PatientDao dao;
+    private Button btnBuscar, btnUsar;
+    private DatabaseReference base;
+
+    private String foundCpf; // mantém o último CPF encontrado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_search);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) { finish(); return; }
-        dao = new PatientDao(user.getUid());
-
-        etCpf = findViewById(R.id.etCpfSearch);
-        btnSearch = findViewById(R.id.btnSearchCpf);
+        etCPF    = findViewById(R.id.etCPFSearch);
         tvResult = findViewById(R.id.tvResult);
+        btnBuscar= findViewById(R.id.btnBuscar);
+        btnUsar  = findViewById(R.id.btnUsarPaciente);
 
-        btnSearch.setOnClickListener(v -> search());
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        base = FirebaseDatabase.getInstance("https://bioapp-496ae-default-rtdb.firebaseio.com/")
+                .getReference().child("Users").child(uid).child("patients");
+
+        btnUsar.setEnabled(false);
+
+        btnBuscar.setOnClickListener(v -> doSearch());
+        btnUsar.setOnClickListener(v -> {
+            if (foundCpf != null) {
+                Intent it = new Intent(this, ExamModeActivity.class);
+                it.putExtra(ExamModeActivity.EXTRA_CPF, foundCpf);
+                startActivity(it);
+                finish();
+            }
+        });
     }
 
-    private void search() {
-        String cpfRaw = etCpf.getText().toString().trim();
-        String cpf = PatientDao.normalizeCpf(cpfRaw);
-        if (TextUtils.isEmpty(cpf) || cpf.length()!=11) {
-            etCpf.setError("CPF (11 dígitos)");
+    private void doSearch() {
+        String cpf = etCPF.getText().toString().trim();
+        if (TextUtils.isEmpty(cpf)) {
+            etCPF.setError("Informe o CPF");
             return;
         }
 
-        dao.refByCpf(cpf).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult().exists()) {
-                Patient p = task.getResult().getValue(Patient.class);
-                String shoeStr = (p.shoe != null) ? String.valueOf(p.shoe) : "-";
-                tvResult.setText(
-                        "Nome: "   + p.name     + "\n" +
-                                "CPF: "    + p.cpf      + "\n" +
-                                "Peso: "   + p.weightKg + " kg\n" +
-                                "Altura: " + p.heightM  + " m\n" +
-                                "Calçado: "+ shoeStr
-                );
+        base.child(cpf).child("_profile").get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                tvResult.setText("Erro: " + task.getException().getMessage());
+                btnUsar.setEnabled(false);
+                return;
+            }
+            DataSnapshot ds = task.getResult();
+            if (ds.exists()) {
+                String nome   = String.valueOf(ds.child("nome").getValue());
+                String peso   = String.valueOf(ds.child("peso").getValue());
+                String altura = String.valueOf(ds.child("altura").getValue());
+                String calc   = String.valueOf(ds.child("calcado").getValue());
+                tvResult.setText("Encontrado:\nNome: " + nome + "\nPeso: " + peso +
+                        "\nAltura: " + altura + "\nCalçado: " + calc);
+                foundCpf = cpf;
+                btnUsar.setEnabled(true);
             } else {
-                Toast.makeText(this, "Paciente não encontrado", Toast.LENGTH_SHORT).show();
-                tvResult.setText("");
+                tvResult.setText("Paciente não encontrado.");
+                foundCpf = null;
+                btnUsar.setEnabled(false);
             }
         });
     }

@@ -1,25 +1,38 @@
-<!-- app/src/main/res/layout/activity_patient_search.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:padding="24dp"
-    android:background="@color/blue4"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/blue1">
 
     <EditText
-        android:id="@+id/etCpfSearch"
+        android:id="@+id/etCPFSearch"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:hint="CPF (11 dígitos)" android:inputType="number"
+        android:hint="CPF"
         android:textColor="@color/white" android:textColorHint="@color/white"
-        android:background="#005E4A4A"/>
+        android:background="#005E4A4A" android:padding="10dp"/>
+
+    <Space android:layout_width="0dp" android:layout_height="8dp"/>
 
     <Button
-        android:id="@+id/btnSearchCpf"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Buscar" android:layout_marginTop="12dp"
-        android:background="@drawable/roundstyle" android:textColor="@color/white"/>
+        android:id="@+id/btnBuscar"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:text="Buscar" android:textStyle="bold"
+        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
+
+    <Space android:layout_width="0dp" android:layout_height="16dp"/>
 
     <TextView
         android:id="@+id/tvResult"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textSize="16sp" android:layout_marginTop="16dp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white" android:textSize="16sp"
+        android:text=""/>
+
+    <Space android:layout_width="0dp" android:layout_height="16dp"/>
+
+    <Button
+        android:id="@+id/btnUsarPaciente"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:text="Usar este paciente"
+        android:enabled="false"
+        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
 </LinearLayout>
