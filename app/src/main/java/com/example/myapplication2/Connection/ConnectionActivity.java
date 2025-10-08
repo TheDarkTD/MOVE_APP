@@ -1,5 +1,6 @@
 package com.example.myapplication2.Connection;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.ConectInsole;
@@ -37,6 +39,7 @@ public class ConnectionActivity extends AppCompatActivity {
     private short S1, S2, S3, S4, S5, S6, S7, S8, S9;
 
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connection);
@@ -51,6 +54,7 @@ public class ConnectionActivity extends AppCompatActivity {
         conectar2 = new ConectInsole2(this);
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
     public void onStart() {
         super.onStart();
@@ -68,8 +72,6 @@ public class ConnectionActivity extends AppCompatActivity {
 
         if (InRight.equals("true")) {
             conectar.createAndSendConfigData(cmd, freq, S1, S2, S3, S4, S5, S6, S7, S8, S9);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                conectar.receiveData(ConnectionActivity.this);}, 1500);
         }
         if (InLeft.equals("true")) {
             conectar2.createAndSendConfigData(cmd, freq, S1, S2, S3, S4, S5, S6, S7, S8, S9);

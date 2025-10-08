@@ -1,0 +1,25 @@
+<!-- app/src/main/res/layout/activity_patient_search.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="24dp"
+    android:background="@color/blue4"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/etCpfSearch"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="CPF (11 dígitos)" android:inputType="number"
+        android:textColor="@color/white" android:textColorHint="@color/white"
+        android:background="#005E4A4A"/>
+
+    <Button
+        android:id="@+id/btnSearchCpf"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Buscar" android:layout_marginTop="12dp"
+        android:background="@drawable/roundstyle" android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/tvResult"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="16sp" android:layout_marginTop="16dp"
+        android:textColor="@color/white"/>
+</LinearLayout>

@@ -1,0 +1,29 @@
+<!-- app/src/main/res/layout/activity_exam_mode.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="24dp"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/blue4">
+
+    <TextView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Selecione o modo do exame" android:textSize="20sp"
+        android:textColor="@color/white" android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnStatic"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Estático (10s)" android:layout_marginTop="16dp"
+        android:background="@drawable/roundstyle" android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/btnMovement"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Em movimento" android:layout_marginTop="12dp"
+        android:background="@drawable/roundstyle" android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/btnBackToHub"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Voltar" android:layout_marginTop="32dp"
+        android:background="@drawable/roundstyle" android:textColor="@color/white" />
+</LinearLayout>

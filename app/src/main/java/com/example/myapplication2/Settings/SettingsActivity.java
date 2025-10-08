@@ -1,11 +1,9 @@
 package com.example.myapplication2.Settings;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,14 +18,12 @@ import com.example.myapplication2.Data.DataActivity;
 import com.example.myapplication2.Home.HomeActivity;
 import com.example.myapplication2.LoginActivity;
 import com.example.myapplication2.R;
-import com.example.myapplication2.Register.Register1Activity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
 public class SettingsActivity extends AppCompatActivity {
@@ -167,7 +163,7 @@ public class SettingsActivity extends AppCompatActivity {
         reconfig.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), Register1Activity.class ));
+                //startActivity(new Intent(getApplicationContext(), Register1Activity.class ));
                 re=true;
                 SharedPreferences.Editor editor = getSharedPreferences("reconfigurar", MODE_PRIVATE).edit();
                 editor.putBoolean("reconfigurar", re);

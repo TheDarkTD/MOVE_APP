@@ -1,60 +1,79 @@
 package com.example.myapplication2.Home;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Switch;
-import android.widget.Toast;
 
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.AppForegroundService;
 import com.example.myapplication2.ConectInsole;
 import com.example.myapplication2.ConectInsole2;
-import com.example.myapplication2.Connection.ConnectionActivity;
-import com.example.myapplication2.Data.DataActivity;
 import com.example.myapplication2.DataCaptureService;
 import com.example.myapplication2.HeatMapViewL;
 import com.example.myapplication2.HeatMapViewR;
 import com.example.myapplication2.R;
-import com.example.myapplication2.Settings.SettingsActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
+import com.example.myapplication2.exam.ExamModeActivity;
+import com.example.myapplication2.patient.PatientHubActivity;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
     private static final String TAG = HomeActivity.class.getSimpleName();
 
+    // ====== Extras do exame ======
+    public static final String EXTRA_CPF  = "extra_cpf";
+    public static final String EXTRA_MODE = "extra_mode"; // "movimento" | "estatico"
+
+    private String cpf;
+    private String mode;
+    private String sessionId;
+    private boolean running = false;
+    private final Handler autoStopHandler = new Handler();
+
+    // ====== Preferências / seleção de pés ======
     private SharedPreferences sharedPreferences;
-    private FloatingActionButton mPopBtn;
+    private String followInRight, followInLeft;
+
+    // ====== UI: mostradores e máscaras ======
     private FrameLayout frameL, frameR;
     private HeatMapViewL heatmapViewL;
     private HeatMapViewR heatmapViewR;
     private ImageView maskL, maskR;
-    private Button mBtnRead;
+    private Button PARAR;
+    private Button INICIAR;
+
+    // ====== Últimas leituras mantidas (fallback visual) ======
     private float[] lastLeituraR = null;
     private float[] lastLeituraL = null;
-    Switch att;
-    private String followInRight, followInLeft;
+
+    // ====== Thresholds ======
     private short S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1;
     private short S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2;
-    private List<HeatMapViewL.SensorRegionL> sensoresL = new ArrayList<>();
-    private List<HeatMapViewR.SensorRegionR> sensoresR = new ArrayList<>();
+
+    // ====== Regiões dos heatmaps ======
+    private final List<HeatMapViewL.SensorRegionL> sensoresL = new ArrayList<>();
+    private final List<HeatMapViewR.SensorRegionR> sensoresR = new ArrayList<>();
+
+    // ====== Conectores BLE ======
+    private ConectInsole conectar;   // direito
+    private ConectInsole2 conectar2; // esquerdo
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +81,34 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         Log.d(TAG, "onCreate: entered");
 
+        // Toolbar com botão voltar
+        MaterialToolbar topBar = findViewById(R.id.topAppBar);
+        topBar.setNavigationIcon(R.drawable.ic_arrow_back_24);
+        topBar.setNavigationOnClickListener(v -> {
+            // Volta para a escolha do modo preservando o CPF
+            Intent it = new Intent(this, ExamModeActivity.class);
+            it.putExtra(ExamModeActivity.EXTRA_CPF, cpf);
+            startActivity(it);
+            finish();
+        });
+
+        // Recebe CPF e MODO do exame
+        cpf  = getIntent().getStringExtra(EXTRA_CPF);
+        mode = getIntent().getStringExtra(EXTRA_MODE);
+        if (cpf == null || mode == null) {
+            // fallback seguro
+            startActivity(new Intent(this, PatientHubActivity.class));
+            finish();
+            return;
+        }
+        topBar.setTitle("Exame (" + mode + ")");
+
+        // Preferência de quais pés acompanhar
         sharedPreferences = getSharedPreferences("My_Appinsolesamount", MODE_PRIVATE);
         followInRight = sharedPreferences.getString("Sright", "default");
-        followInLeft = sharedPreferences.getString("Sleft", "default");
-        Log.d(TAG, "onCreate: followInRight=" + followInRight + ", followInLeft=" + followInLeft);
+        followInLeft  = sharedPreferences.getString("Sleft", "default");
 
-
+        // Views
         heatmapViewL = findViewById(R.id.heatmapViewL);
         heatmapViewR = findViewById(R.id.heatmapViewR);
         maskL = findViewById(R.id.imageView5);
@@ -75,213 +116,147 @@ public class HomeActivity extends AppCompatActivity {
         frameL = findViewById(R.id.frameL);
         frameR = findViewById(R.id.frameR);
 
-        Log.d(TAG, "onCreate: views initialized");
+        PARAR   = findViewById(R.id.buttonparar);
+        INICIAR = findViewById(R.id.buttonIniciar);
     }
 
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN})
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart: entered");
 
-        // Start services
+        // Inicia serviços existentes
         startService(new Intent(this, AppForegroundService.class));
         startService(new Intent(this, DataCaptureService.class));
-        Log.d(TAG, "onStart: Services started");
 
-        byte freq = 1;
-        byte cmd = 0x3A;
-        ConectInsole conectar = new ConectInsole(this);
-        ConectInsole2 conectar2 = new ConectInsole2(this);
+        // Instancia conectores (não envia 3A aqui — só ao clicar em Iniciar)
+        conectar  = new ConectInsole(this);
+        conectar2 = new ConectInsole2(this);
 
+        // Mostrar/ocultar mostradores conforme preferências
         if ("false".equals(followInLeft)) {
             heatmapViewL.setVisibility(View.GONE);
             maskL.setVisibility(View.GONE);
             frameL.setVisibility(View.GONE);
-            Log.d(TAG, "onStart: Left insole hidden");
         }
         if ("false".equals(followInRight)) {
             heatmapViewR.setVisibility(View.GONE);
             maskR.setVisibility(View.GONE);
             frameR.setVisibility(View.GONE);
-            Log.d(TAG, "onStart: Right insole hidden");
         }
 
-        // Load thresholds
+        // Carrega thresholds pé direito
         sharedPreferences = getSharedPreferences("ConfigPrefs1", MODE_PRIVATE);
-        short[] rightThresh = new short[]{
-                S1_1 = (short) sharedPreferences.getInt("S1", 0xffff),
-                S2_1 = (short) sharedPreferences.getInt("S2", 0xffff),
-                S3_1 = (short) sharedPreferences.getInt("S3", 0xffff),
-                S4_1 = (short) sharedPreferences.getInt("S4", 0xffff),
-                S5_1 = (short) sharedPreferences.getInt("S5", 0xffff),
-                S6_1 = (short) sharedPreferences.getInt("S6", 0xffff),
-                S7_1 = (short) sharedPreferences.getInt("S7", 0xffff),
-                S8_1 = (short) sharedPreferences.getInt("S8", 0xffff),
-                S9_1 = (short) sharedPreferences.getInt("S9", 0xffff)
-        };
-        Log.d(TAG, "onStart: Right thresholds=" + Arrays.toString(rightThresh));
+        S1_1 = (short) sharedPreferences.getInt("S1", 0xffff);
+        S2_1 = (short) sharedPreferences.getInt("S2", 0xffff);
+        S3_1 = (short) sharedPreferences.getInt("S3", 0xffff);
+        S4_1 = (short) sharedPreferences.getInt("S4", 0xffff);
+        S5_1 = (short) sharedPreferences.getInt("S5", 0xffff);
+        S6_1 = (short) sharedPreferences.getInt("S6", 0xffff);
+        S7_1 = (short) sharedPreferences.getInt("S7", 0xffff);
+        S8_1 = (short) sharedPreferences.getInt("S8", 0xffff);
+        S9_1 = (short) sharedPreferences.getInt("S9", 0xffff);
 
+        // Carrega thresholds pé esquerdo
         sharedPreferences = getSharedPreferences("ConfigPrefs2", MODE_PRIVATE);
-        short[] leftThresh = new short[]{
-                S1_2 = (short) sharedPreferences.getInt("S1", 0xffff),
-                S2_2 = (short) sharedPreferences.getInt("S2", 0xffff),
-                S3_2 = (short) sharedPreferences.getInt("S3", 0xffff),
-                S4_2 = (short) sharedPreferences.getInt("S4", 0xffff),
-                S5_2 = (short) sharedPreferences.getInt("S5", 0xffff),
-                S6_2 = (short) sharedPreferences.getInt("S6", 0xffff),
-                S7_2 = (short) sharedPreferences.getInt("S7", 0xffff),
-                S8_2 = (short) sharedPreferences.getInt("S8", 0xffff),
-                S9_2 = (short) sharedPreferences.getInt("S9", 0xffff)
-        };
-        Log.d(TAG, "onStart: Left thresholds=" + Arrays.toString(leftThresh));
+        S1_2 = (short) sharedPreferences.getInt("S1", 0xffff);
+        S2_2 = (short) sharedPreferences.getInt("S2", 0xffff);
+        S3_2 = (short) sharedPreferences.getInt("S3", 0xffff);
+        S4_2 = (short) sharedPreferences.getInt("S4", 0xffff);
+        S5_2 = (short) sharedPreferences.getInt("S5", 0xffff);
+        S6_2 = (short) sharedPreferences.getInt("S6", 0xffff);
+        S7_2 = (short) sharedPreferences.getInt("S7", 0xffff);
+        S8_2 = (short) sharedPreferences.getInt("S8", 0xffff);
+        S9_2 = (short) sharedPreferences.getInt("S9", 0xffff);
 
-        if ("true".equals(followInRight)) {
-            conectar.createAndSendConfigData(cmd, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-            Log.d(TAG, "onStart: Config sent to right insole");
-        }
-        if ("true".equals(followInLeft)) {
-            conectar2.createAndSendConfigData(cmd, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-            Log.d(TAG, "onStart: Config sent to left insole");
-        }
+        // Botão INICIAR
+        INICIAR.setOnClickListener(v -> startSession((byte) 1)); // freq=1Hz (ajuste se quiser)
 
+        // Botão PARAR
+        PARAR.setOnClickListener(v -> stopSession());
 
-        Log.d(TAG, "onStart: Heatmaps initialized");
+        // Atualiza mostradores (com últimas leituras)
+        if ("true".equals(followInLeft))  loadColorsL();
+        if ("true".equals(followInRight)) loadColorsR();
 
-        BottomNavigationView nav = findViewById(R.id.bottomnavview1);
-        nav.setSelectedItemId(R.id.home);
-        nav.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.home:
-                    Log.d(TAG, "Nav: Home"); return true;
-                case R.id.settings:
-                    Log.d(TAG, "Nav: Settings"); startActivity(new Intent(this, SettingsActivity.class)); finish(); return true;
-                case R.id.connection:
-                    Log.d(TAG, "Nav: Connection"); startActivity(new Intent(this, ConnectionActivity.class)); finish(); return true;
-                case R.id.data:
-                    Log.d(TAG, "Nav: Data"); startActivity(new Intent(this, DataActivity.class)); finish(); return true;
-            }
-            return false;
-        });
-        att = findViewById(R.id.switchatt);
-
-// Handlers para repetir a execução
-        Handler handlerRight = new Handler(Looper.getMainLooper());
-        Handler handlerLeft = new Handler(Looper.getMainLooper());
-
-        Runnable runnableRight = new Runnable() {
-            @Override
-            public void run() {
-                if ("true".equals(followInRight) && att.isChecked()) {
-                    byte cmd3c = 0x3C;
-
-                    Log.d(TAG, "onStart: Right thresholds=" + Arrays.toString(rightThresh));
-                    Log.d(TAG, "ReadBtn: send read cmd to right");
-                    conectar.createAndSendConfigData(cmd3c, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-
-                    handlerRight.postDelayed(() -> {
-                        Log.d(TAG, "ReadBtn: received data from right");
-                        conectar.receiveData(HomeActivity.this);
-                        loadColorsR();
-                        conectar.createAndSendConfigData(cmd, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-                    }, 250); // atraso interno entre enviar e receber
-
-                    handlerRight.postDelayed(this, 1500);
-                }
-            }
-        };
-
-        Runnable runnableLeft = new Runnable() {
-            @Override
-            public void run() {
-                if ("true".equals(followInLeft) && att.isChecked()) {
-                    byte cmd3c = 0x3C;
-
-                    Log.d(TAG, "onStart: Left thresholds=" + Arrays.toString(leftThresh));
-                    Log.d(TAG, "ReadBtn: send read cmd to left");
-                    conectar2.createAndSendConfigData(cmd3c, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-
-                    handlerLeft.postDelayed(() -> {
-                        Log.d(TAG, "ReadBtn: received data from left");
-                        conectar2.createAndSendConfigData(cmd, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-                        loadColorsL();
-                    }, 250);
-
-                    handlerLeft.postDelayed(this, 1500);
-                }
-            }
-        };
-
-        att.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                Log.d(TAG, "Switch ON");
-                Toast.makeText(HomeActivity.this, "iniciando atualização", Toast.LENGTH_SHORT).show();
-
-                // inicia os loops se necessário
-                if ("true".equals(followInRight)) {
-                    handlerRight.post(runnableRight);
-                }
-                if ("true".equals(followInLeft)) {
-                    handlerLeft.post(runnableLeft);
-                }
-            } else {
-                Log.d(TAG, "Switch OFF");
-                Toast.makeText(HomeActivity.this, "atualizaçao desligada ", Toast.LENGTH_SHORT).show();
-
-                // interrompe os loops
-                handlerRight.removeCallbacks(runnableRight);
-                handlerLeft.removeCallbacks(runnableLeft);
-            }
-        });
-
-        mPopBtn = findViewById(R.id.floatingActionButton2);
-        mPopBtn.setOnClickListener(v -> {
-            Log.d(TAG, "PopBtn: Open Pop");
-            startActivity(new Intent(this, Pop.class));
-        });
-
-        mBtnRead = findViewById(R.id.buttonread);
-        mBtnRead.setOnClickListener(v -> {
-            Log.d(TAG, "ReadBtn: request readings");
-            byte cmd3c = 0x3C;
-            if ("true".equals(followInRight)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Log.d(TAG, "onStart: Right thresholds=" + Arrays.toString(rightThresh));
-                    Log.d(TAG, "ReadBtn: send read cmd to right");
-                    conectar.createAndSendConfigData(cmd3c, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-                }, 100);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Log.d(TAG, "ReadBtn: received data from right");
-                    conectar.receiveData(this);
-                    loadColorsR();
-                    conectar.createAndSendConfigData(cmd, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-                }, 250);
-            }
-            if ("true".equals(followInLeft)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Log.d(TAG, "ReadBtn: send read cmd to left");
-                    Log.d(TAG, "onStart: Left thresholds=" + Arrays.toString(leftThresh));
-                    conectar2.createAndSendConfigData(cmd3c, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-                }, 100);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Log.d(TAG, "ReadBtn: received data from left");
-
-                    conectar2.createAndSendConfigData(cmd, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-                    loadColorsL();
-                }, 250);
-            }
-        });
-        if ("true".equals(followInLeft)) {
-            loadColorsL();
-
-        }
-        if ("true".equals(followInRight)) {
-            loadColorsR();
-        }
+        // Listeners UDP (mantidos)
         Insole_RightIP();
         Insole_leftIP();
     }
 
-    private void loadColorsR() {
+    // ====== Controle do ciclo start/stop ======
+    private String newSessionId() {
+        return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS", Locale.getDefault())
+                .format(new Date());
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private void startSession(byte freq) {
+        if (running) return;
+        running = true;
+        sessionId = newSessionId();
+        Log.d(TAG, "startSession: sessionId=" + sessionId + ", mode=" + mode + ", cpf=" + cpf);
+
+        // Habilita buffer e envia 0x3A
+        if ("true".equals(followInRight)) {
+            try {
+                conectar.setSessionMeta(cpf, mode, sessionId);   // pé direito
+
+                conectar.enableBuffering(true);
+                conectar.createAndSendConfigData((byte) 0x3A, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+            } catch (Exception e) {
+                Log.e(TAG, "startSession: erro right", e);
+            }
+        }
+        if ("true".equals(followInLeft)) {
+            try {
+                //conectar2.setSessionMeta(cpf, mode, sessionId);  // pé esquerdo (se usar)
+                //conectar2.enableBuffering(true);
+                //conectar2.createAndSendConfigData((byte) 0x3A, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+            } catch (Exception e) {
+                Log.e(TAG, "startSession: erro left", e);
+            }
+        }
+
+        // Se for estático, agenda parar em 10s
+        if ("estatico".equalsIgnoreCase(mode)) {
+            autoStopHandler.postDelayed(this::stopSession, 10_000);
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private void stopSession() {
+        if (!running) return;
+        running = false;
+        autoStopHandler.removeCallbacksAndMessages(null);
+
+        Log.d(TAG, "stopSession: sessionId=" + sessionId);
+
+        // Flush (envia+zera), desabilita buffer e envia 0x3B
+        if ("true".equals(followInRight)) {
+            try {
+                conectar.flushToCloudNow();
+                conectar.enableBuffering(false);
+                conectar.createAndSendConfigData((byte) 0x3B, (byte) 0,
+                        S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+            } catch (Exception e) {
+                Log.e(TAG, "stopSession: erro right", e);
+            }
+        }
+        if ("true".equals(followInLeft)) {
+            try {
+                //conectar2.flushToCloudNow();
+                //conectar2.enableBuffering(false);
+                //conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+            } catch (Exception e) {
+                Log.e(TAG, "stopSession: erro left", e);
+            }
+        }
+    }
+
+    // ====== Heatmap do pé direito ======
+    public void loadColorsR() {
         Log.d(TAG, "loadColorsR: called");
         SharedPreferences prefs = getSharedPreferences("My_Appinsolereadings", MODE_PRIVATE);
         short[][] sensorReadings = loadSensorReadings(prefs);
@@ -320,7 +295,7 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "loadColorsR: regions set");
     }
 
-
+    // ====== Heatmap do pé esquerdo ======
     private void loadColorsL() {
         Log.d(TAG, "loadColorsL: called");
         SharedPreferences prefs = getSharedPreferences("My_Appinsolereadings2", MODE_PRIVATE);
@@ -361,7 +336,7 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "loadColorsL: regions set");
     }
 
-
+    // ====== Leitura das prefs (direito) ======
     private short[][] loadSensorReadings(SharedPreferences prefs) {
         Log.d(TAG, "loadSensorReadings: called");
         String[] keys = {"S1_1","S2_1","S3_1","S4_1","S5_1","S6_1","S7_1","S8_1","S9_1"};
@@ -374,6 +349,7 @@ public class HomeActivity extends AppCompatActivity {
         return readings;
     }
 
+    // ====== Leitura das prefs (esquerdo) ======
     private short[][] loadSensorReadings2(SharedPreferences prefs) {
         Log.d(TAG, "loadSensorReadings2: called");
         String[] keys = {"S1_2","S2_2","S3_2","S4_2","S5_2","S6_2","S7_2","S8_2","S9_2"};
@@ -386,6 +362,7 @@ public class HomeActivity extends AppCompatActivity {
         return readings;
     }
 
+    // ====== Conversor de string "[1,2,3]" -> short[] ======
     private short[] stringToShortArray(String input) {
         input = input.replace("[", "").replace("]", "").trim();
         if (input.isEmpty()) return new short[0];
@@ -402,6 +379,7 @@ public class HomeActivity extends AppCompatActivity {
         return result;
     }
 
+    // ====== UDP listeners (mantidos) ======
     public void Insole_RightIP() {
         Log.d(TAG, "Insole_RightIP: listener start");
         final int port = 20000;

@@ -142,46 +142,9 @@ public class RegisterActivity extends AppCompatActivity
         });
     }
     // Função para carregar os dados de S1 a S9 e retornar um HashMap com esses dados
-    private HashMap<String, Integer> loadConfigDataFromPrefs(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("ConfigPrefs1", Context.MODE_PRIVATE);
 
-        // Recuperando os valores de S1 a S9
-        HashMap<String, Integer> configData = new HashMap<>();
-        configData.put("S1", sharedPreferences.getInt("S1", 0));  // 0 é o valor padrão
-        configData.put("S2", sharedPreferences.getInt("S2", 0));
-        configData.put("S3", sharedPreferences.getInt("S3", 0));
-        configData.put("S4", sharedPreferences.getInt("S4", 0));
-        configData.put("S5", sharedPreferences.getInt("S5", 0));
-        configData.put("S6", sharedPreferences.getInt("S6", 0));
-        configData.put("S7", sharedPreferences.getInt("S7", 0));
-        configData.put("S8", sharedPreferences.getInt("S8", 0));
-        configData.put("S9", sharedPreferences.getInt("S9", 0));
-
-        return configData;
-    }
-    private HashMap<String, Integer> loadConfigData2FromPrefs(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("ConfigPrefs2", Context.MODE_PRIVATE);
-
-        // Recuperando os valores de S1 a S9
-        HashMap<String, Integer> configData = new HashMap<>();
-        configData.put("S1", sharedPreferences.getInt("S1", 0));  // 0 é o valor padrão
-        configData.put("S2", sharedPreferences.getInt("S2", 0));
-        configData.put("S3", sharedPreferences.getInt("S3", 0));
-        configData.put("S4", sharedPreferences.getInt("S4", 0));
-        configData.put("S5", sharedPreferences.getInt("S5", 0));
-        configData.put("S6", sharedPreferences.getInt("S6", 0));
-        configData.put("S7", sharedPreferences.getInt("S7", 0));
-        configData.put("S8", sharedPreferences.getInt("S8", 0));
-        configData.put("S9", sharedPreferences.getInt("S9", 0));
-
-        return configData;
-    }
 
     void saveUserData(String uid) {
-        // Inicializando as instâncias para os insole
-        conectar = new ConectInsole(this);
-        conectar2 = new ConectInsole2(this);
-
         // Obtendo os dados dos campos de usuário
         String getName = mName.getText().toString().trim();
         String getSurname = mSurname.getText().toString().trim();
@@ -199,72 +162,12 @@ public class RegisterActivity extends AppCompatActivity
         hashMap.put("name", getName);
         hashMap.put("surname", getSurname);
         hashMap.put("email", getEmail);
-        hashMap.put("InsolesR", followInRight);
-        hashMap.put("InsolesL", followInLeft);
-
-        // Carrega os dados de configurações dos sensores (S1 a S9) em HashMaps
-        HashMap<String, Integer> configData1 = loadConfigDataFromPrefs(this);
-        HashMap<String, Integer> configData2 = loadConfigData2FromPrefs(this);
-
-        // Se os flags indicarem, adiciona as configurações
-        if (followInRight.equals("true")) {
-            hashMap.put("ConfigData1", configData1);
-        }
-        if (followInLeft.equals("true")) {
-            hashMap.put("ConfigData2", configData2);
-        }
-
-        // --- Adicionando os dados de vibração ---
-        SharedPreferences vibraPrefs = getSharedPreferences("My_Appvibra", MODE_PRIVATE);
-
-        String vibraTime = vibraPrefs.getString("time", "");
-        String vibraInt = vibraPrefs.getString("int", "");
-        String vibraInterval = vibraPrefs.getString("interval", "");
-        String vibraPulse = vibraPrefs.getString("pulse", "");
-
-        HashMap<String, Object> vibraMap = new HashMap<>();
-        vibraMap.put("time", vibraTime);
-        vibraMap.put("int", vibraInt);
-        vibraMap.put("interval", vibraInterval);
-        vibraMap.put("pulse", vibraPulse);
-        // Adiciona o vibraMap ao HashMap principal
-        hashMap.put("vibra", vibraMap);
-        // --- Fim da seção de vibração ---
-
         // Envia os dados para o Firebase
         databaseReference.child("Users").child(uid).setValue(hashMap)
                 .addOnSuccessListener(aVoid ->
                         Toast.makeText(RegisterActivity.this, "Dados do usuário salvos", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
                         Toast.makeText(RegisterActivity.this, "Erro ao salvar dados: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
-    void saveUserData2(String uid) {
-        // Inicializando as instâncias para os insole
-        conectar = new ConectInsole(this);
-        conectar2 = new ConectInsole2(this);
-
-
-        // Criando o HashMap para salvar os dados do usuário
-        HashMap<String, Object> hashMap = new HashMap<>();
-
-        // Carrega os dados de configurações dos sensores (S1 a S9) em HashMaps
-        HashMap<String, Integer> configData1 = loadConfigDataFromPrefs(this);
-        HashMap<String, Integer> configData2 = loadConfigData2FromPrefs(this);
-
-        // Se os flags indicarem, adiciona as configurações
-        if (followInRight.equals("true")) {
-            hashMap.put("ConfigData1", configData1);
-        }
-        if (followInLeft.equals("true")) {
-            hashMap.put("ConfigData2", configData2);
-        }
-
-        // Envia os dados para o Firebase
-        databaseReference.child("Users").child(uid).setValue(hashMap)
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "Dados do usuário salvos", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Erro ao salvar dados: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
 }

@@ -1,0 +1,50 @@
+<!-- app/src/main/res/layout/activity_patient_form.xml -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/blue4">
+
+    <LinearLayout
+        android:orientation="vertical" android:padding="24dp"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Nome *" android:textColor="@color/white"
+            android:textColorHint="@color/white" android:background="#005E4A4A"/>
+
+        <EditText
+            android:id="@+id/etCpf"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="CPF * (apenas números)" android:inputType="number"
+            android:textColor="@color/white" android:textColorHint="@color/white"
+            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etWeight"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Peso (kg) *" android:inputType="numberDecimal"
+            android:textColor="@color/white" android:textColorHint="@color/white"
+            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etHeight"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Altura (m) *" android:inputType="numberDecimal"
+            android:textColor="@color/white" android:textColorHint="@color/white"
+            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etShoe"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Nº do calçado (opcional)" android:inputType="number"
+            android:textColor="@color/white" android:textColorHint="@color/white"
+            android:background="#005E4A4A" android:layout_marginTop="12dp"/>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Salvar" android:layout_marginTop="16dp"
+            android:background="@drawable/roundstyle" android:textColor="@color/white"/>
+    </LinearLayout>
+</ScrollView>
