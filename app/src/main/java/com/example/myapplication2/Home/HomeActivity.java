@@ -180,9 +180,6 @@ public class HomeActivity extends AppCompatActivity {
         if ("true".equals(followInLeft))  loadColorsL();
         if ("true".equals(followInRight)) loadColorsR();
 
-        // Listeners UDP (mantidos)
-        Insole_RightIP();
-        Insole_leftIP();
     }
 
     // ====== Controle do ciclo start/stop ======
@@ -199,7 +196,7 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "startSession: sessionId=" + sessionId + ", mode=" + mode + ", cpf=" + cpf);
 
         // Habilita buffer e envia 0x3A
-        if ("true".equals(followInRight)) {
+
             try {
                 conectar.setSessionMeta(cpf, mode, sessionId);   // pé direito
 
@@ -208,8 +205,8 @@ public class HomeActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "startSession: erro right", e);
             }
-        }
-        if ("true".equals(followInLeft)) {
+
+
             try {
                 //conectar2.setSessionMeta(cpf, mode, sessionId);  // pé esquerdo (se usar)
                 //conectar2.enableBuffering(true);
@@ -217,7 +214,7 @@ public class HomeActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "startSession: erro left", e);
             }
-        }
+
 
         // Se for estático, agenda parar em 10s
         if ("estatico".equalsIgnoreCase(mode)) {
@@ -238,8 +235,7 @@ public class HomeActivity extends AppCompatActivity {
             try {
                 conectar.flushToCloudNow();
                 conectar.enableBuffering(false);
-                conectar.createAndSendConfigData((byte) 0x3B, (byte) 0,
-                        S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+                conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
             } catch (Exception e) {
                 Log.e(TAG, "stopSession: erro right", e);
             }
@@ -379,46 +375,6 @@ public class HomeActivity extends AppCompatActivity {
         return result;
     }
 
-    // ====== UDP listeners (mantidos) ======
-    public void Insole_RightIP() {
-        Log.d(TAG, "Insole_RightIP: listener start");
-        final int port = 20000;
-        new Thread(() -> {
-            try {
-                DatagramSocket s = new DatagramSocket(port);
-                DatagramPacket p = new DatagramPacket(new byte[1024], 1024);
-                while (true) {
-                    s.receive(p);
-                    String ip = new String(p.getData(), 0, p.getLength());
-                    Log.d(TAG, "Insole_RightIP: got IP=" + ip);
-                    SharedPreferences ipPrefs = getSharedPreferences("My_Appips", MODE_PRIVATE);
-                    ipPrefs.edit().putString("IP", ip).apply();
-                    Log.d(TAG, "Insole_RightIP: saved IP");
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Insole_RightIP: error", e);
-            }
-        }).start();
-    }
 
-    public void Insole_leftIP() {
-        Log.d(TAG, "Insole_leftIP: listener start");
-        final int port = 20001;
-        new Thread(() -> {
-            try {
-                DatagramSocket s = new DatagramSocket(port);
-                DatagramPacket p = new DatagramPacket(new byte[1024], 1024);
-                while (true) {
-                    s.receive(p);
-                    String ip = new String(p.getData(), 0, p.getLength());
-                    Log.d(TAG, "Insole_leftIP: got IP=" + ip);
-                    SharedPreferences ipPrefs = getSharedPreferences("My_Appips", MODE_PRIVATE);
-                    ipPrefs.edit().putString("IP2", ip).apply();
-                    Log.d(TAG, "Insole_leftIP: saved IP");
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Insole_leftIP: error", e);
-            }
-        }).start();
-    }
+
 }
