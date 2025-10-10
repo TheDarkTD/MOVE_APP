@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -170,15 +171,41 @@ public class HomeActivity extends AppCompatActivity {
         S8_2 = (short) sharedPreferences.getInt("S8", 0xffff);
         S9_2 = (short) sharedPreferences.getInt("S9", 0xffff);
 
-        // Botão INICIAR
-        INICIAR.setOnClickListener(v -> startSession((byte) 1)); // freq=1Hz (ajuste se quiser)
-
-        // Botão PARAR
-        PARAR.setOnClickListener(v -> stopSession());
-
         // Atualiza mostradores (com últimas leituras)
-        if ("true".equals(followInLeft))  loadColorsL();
-        if ("true".equals(followInRight)) loadColorsR();
+        loadColorsL();
+        loadColorsR();
+        INICIAR.setOnClickListener(v -> {
+            Log.d(TAG, "ReadBtn: request readings");
+            stopService(new Intent(this, DataCaptureService.class));
+            conectar.setSessionMeta(cpf, mode, sessionId);   // pé direito
+            conectar.enableBuffering(true);
+            conectar.createAndSendConfigData((byte) 0x3A, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+            //conectar2.setSessionMeta(cpf, mode, sessionId);  // pé esquerdo (se usar)
+            //conectar2.enableBuffering(true);
+            //conectar2.createAndSendConfigData((byte) 0x3A, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+            if ("estatico".equalsIgnoreCase(mode)) {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    conectar.flushToCloudNow();
+                    conectar.enableBuffering(false);
+                    conectar.createAndSendConfigData((byte) 0x3B, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+                    //conectar2.flushToCloudNow();
+                    //conectar2.enableBuffering(false);
+                    //conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+
+
+                }, 10000);
+            }
+
+        });
+        PARAR.setOnClickListener(v -> {
+            conectar.flushToCloudNow();
+            conectar.enableBuffering(false);
+            conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+            //conectar2.flushToCloudNow();
+            //conectar2.enableBuffering(false);
+            //conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+            //conectar2.clearBuffer();
+        });
 
     }
 
@@ -186,69 +213,6 @@ public class HomeActivity extends AppCompatActivity {
     private String newSessionId() {
         return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS", Locale.getDefault())
                 .format(new Date());
-    }
-
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    private void startSession(byte freq) {
-        if (running) return;
-        running = true;
-        sessionId = newSessionId();
-        Log.d(TAG, "startSession: sessionId=" + sessionId + ", mode=" + mode + ", cpf=" + cpf);
-
-        // Habilita buffer e envia 0x3A
-
-            try {
-                conectar.setSessionMeta(cpf, mode, sessionId);   // pé direito
-
-                conectar.enableBuffering(true);
-                conectar.createAndSendConfigData((byte) 0x3A, freq, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-            } catch (Exception e) {
-                Log.e(TAG, "startSession: erro right", e);
-            }
-
-
-            try {
-                //conectar2.setSessionMeta(cpf, mode, sessionId);  // pé esquerdo (se usar)
-                //conectar2.enableBuffering(true);
-                //conectar2.createAndSendConfigData((byte) 0x3A, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-            } catch (Exception e) {
-                Log.e(TAG, "startSession: erro left", e);
-            }
-
-
-        // Se for estático, agenda parar em 10s
-        if ("estatico".equalsIgnoreCase(mode)) {
-            autoStopHandler.postDelayed(this::stopSession, 10_000);
-        }
-    }
-
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    private void stopSession() {
-        if (!running) return;
-        running = false;
-        autoStopHandler.removeCallbacksAndMessages(null);
-
-        Log.d(TAG, "stopSession: sessionId=" + sessionId);
-
-        // Flush (envia+zera), desabilita buffer e envia 0x3B
-        if ("true".equals(followInRight)) {
-            try {
-                conectar.flushToCloudNow();
-                conectar.enableBuffering(false);
-                conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-            } catch (Exception e) {
-                Log.e(TAG, "stopSession: erro right", e);
-            }
-        }
-        if ("true".equals(followInLeft)) {
-            try {
-                //conectar2.flushToCloudNow();
-                //conectar2.enableBuffering(false);
-                //conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-            } catch (Exception e) {
-                Log.e(TAG, "stopSession: erro left", e);
-            }
-        }
     }
 
     // ====== Heatmap do pé direito ======
