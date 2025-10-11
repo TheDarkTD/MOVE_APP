@@ -2,6 +2,7 @@ package com.example.myapplication2;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log; // <-- IMPORTAÇÃO ADICIONADA
 
 import com.example.myapplication2.ConectInsole;
 import com.example.myapplication2.ConectInsole2;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class FirebaseHelper {
 
     // ===================== CAMPOS =====================
+    private static final String TAG = "FirebaseHelper"; // <-- TAG PARA LOGS
     private DatabaseReference mDatabase;
     private String userId;
 
@@ -41,7 +43,9 @@ public class FirebaseHelper {
                     .getReference()
                     .child("Users")
                     .child(userId);
-
+            Log.i(TAG, "FirebaseHelper inicializado para User ID: " + userId); // <-- LOG
+        } else {
+            Log.i(TAG, "FirebaseHelper inicializado sem usuário logado (mDatabase nulo)."); // <-- LOG
         }
         // Sempre inicializa prefs (mesmo sem user, para evitar NPE em testes)
         sharedPreferences = context.getSharedPreferences("offline_data", Context.MODE_PRIVATE);
@@ -52,8 +56,6 @@ public class FirebaseHelper {
     /**
      * Salva um snapshot de leitura (direito ou esquerdo) em:
      * Users/{uid}/patients/{cpf}/{mode}/{sessionId}/
-     * Este método é ESTÁTICO para você poder chamá-lo como já fez:
-     * FirebaseHelper.saveSendDataForPatient(firebasehelper, snapshot, context, ev, cpf, mode, sessionId);
      */
     public static void saveSendDataForPatient(FirebaseHelper helper,
                                               Object sendDataSnapshot, // ConectInsole.SendData ou ConectInsole2.SendData
@@ -64,7 +66,10 @@ public class FirebaseHelper {
                                               String sessionId) {
         // Garante user logado
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null || cpf == null || mode == null || sessionId == null) return;
+        if (user == null || cpf == null || mode == null || sessionId == null) {
+            Log.e(TAG, "saveSendDataForPatient: Falha. Usuário não logado ou parâmetros nulos."); // <-- LOG
+            return;
+        }
 
         String uid = user.getUid();
         DatabaseReference base = FirebaseDatabase.getInstance(DB_URL)
@@ -76,6 +81,8 @@ public class FirebaseHelper {
                 .child(mode)
                 .child(sessionId);
 
+        Log.i(TAG, "saveSendDataForPatient: Tentando salvar dado para CPF=" + cpf + ", Mode=" + mode + ", Session=" + sessionId); // <-- LOG
+
         // Pacote principal (séries e carimbo de hora de chegada)
         Map<String, Object> map = new HashMap<>();
         map.put("payload", sendDataSnapshot); // o próprio objeto com SR1..SR9, battery, etc.
@@ -83,17 +90,18 @@ public class FirebaseHelper {
         map.put("receivedAt", System.currentTimeMillis());
 
         if (NetworkUtils.isNetworkAvailable(ctx)) {
-            base.updateChildren(map);
+            base.updateChildren(map)
+                    .addOnSuccessListener(aVoid -> Log.i(TAG, "saveSendDataForPatient: Salvo ONLINE com sucesso!")) // <-- LOG
+                    .addOnFailureListener(e -> Log.e(TAG, "saveSendDataForPatient: Erro ao salvar ONLINE: " + e.getMessage(), e)); // <-- LOG
         } else {
             // offline: guarda no SharedPreferences com uma chave única
             savePatientSnapshotOffline(ctx, cpf, mode, sessionId, map);
+            Log.i(TAG, "saveSendDataForPatient: Salvo OFFLINE (snapshot) com sucesso."); // <-- LOG
         }
     }
 
     /**
      * Grava metadados da sessão (no STOP).
-     * Caminho: Users/{uid}/patients/{cpf}/{mode}/{sessionId}/_meta
-     * Exemplo de chamada: FirebaseHelper.saveExamSessionMeta(ctx, cpf, mode, sessionId, System.currentTimeMillis());
      */
     public static void saveExamSessionMeta(Context ctx,
                                            String cpf,
@@ -101,7 +109,10 @@ public class FirebaseHelper {
                                            String sessionId,
                                            long endTimestamp) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null || cpf == null || mode == null || sessionId == null) return;
+        if (user == null || cpf == null || mode == null || sessionId == null) {
+            Log.e(TAG, "saveExamSessionMeta: Falha. Usuário não logado ou parâmetros nulos."); // <-- LOG
+            return;
+        }
 
         String uid = user.getUid();
         DatabaseReference metaRef = FirebaseDatabase.getInstance(DB_URL)
@@ -114,18 +125,23 @@ public class FirebaseHelper {
                 .child(sessionId)
                 .child("_meta");
 
+        Log.i(TAG, "saveExamSessionMeta: Tentando salvar meta para CPF=" + cpf + ", Session=" + sessionId); // <-- LOG
+
         Map<String, Object> meta = new HashMap<>();
         meta.put("sessionId", sessionId);
         meta.put("mode", mode);
         meta.put("endedAt", endTimestamp);
 
         if (NetworkUtils.isNetworkAvailable(ctx)) {
-            metaRef.updateChildren(meta);
+            metaRef.updateChildren(meta)
+                    .addOnSuccessListener(aVoid -> Log.i(TAG, "saveExamSessionMeta: Meta salva ONLINE com sucesso!")) // <-- LOG
+                    .addOnFailureListener(e -> Log.e(TAG, "saveExamSessionMeta: Erro ao salvar Meta ONLINE: " + e.getMessage(), e)); // <-- LOG
         } else {
             // offline: guarda local para sincronizar depois
             savePatientSnapshotOffline(ctx, cpf, mode, sessionId, new HashMap<String, Object>() {{
                 put("_meta", meta);
             }});
+            Log.i(TAG, "saveExamSessionMeta: Meta salva OFFLINE com sucesso."); // <-- LOG
         }
     }
 
@@ -138,25 +154,33 @@ public class FirebaseHelper {
         SharedPreferences prefs = ctx.getSharedPreferences("offline_data", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         String key = "patient_snapshot_" + cpf + "_" + mode + "_" + sessionId + "_" + System.currentTimeMillis();
-        // Armazenando como String simples (payload.toString()); se quiser JSON real, pode usar Gson
+        // Armazenando como String simples (payload.toString());
         editor.putString(key, payload.toString());
         editor.apply();
+        Log.d(TAG, "savePatientSnapshotOffline: Dados salvos localmente com chave: " + key); // <-- LOG detalhado
     }
 
     /**
      * Sincroniza itens do novo fluxo salvos offline (aqueles com chave "patient_snapshot_...").
-     * OBS: como salvamos payload como String (toString), aqui empurramos como texto bruto para um nó "offlineDump".
-     * Se quiser reconstruir o objeto inteiro, mude o save offline para JSON (Gson) e desserialize aqui.
      */
     public void syncPatientOffline() {
-        if (!NetworkUtils.isNetworkAvailable(context)) return;
+        if (!NetworkUtils.isNetworkAvailable(context)) {
+            Log.i(TAG, "syncPatientOffline: Sem conexão. Sincronização adiada."); // <-- LOG
+            return;
+        }
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            Log.e(TAG, "syncPatientOffline: Sem usuário logado. Não é possível sincronizar."); // <-- LOG
+            return;
+        }
         String uid = user.getUid();
 
         Map<String, ?> all = sharedPreferences.getAll();
-        if (all == null || all.isEmpty()) return;
+        if (all == null || all.isEmpty()) {
+            Log.i(TAG, "syncPatientOffline: Nenhuma snapshot de paciente offline encontrada."); // <-- LOG
+            return;
+        }
 
         DatabaseReference root = FirebaseDatabase.getInstance(DB_URL)
                 .getReference()
@@ -165,6 +189,7 @@ public class FirebaseHelper {
                 .child("_offlineSync");
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        int syncedCount = 0;
         for (Map.Entry<String, ?> e : all.entrySet()) {
             String k = e.getKey();
             Object v = e.getValue();
@@ -173,11 +198,16 @@ public class FirebaseHelper {
                 String id = root.push().getKey();
                 if (id != null) {
                     root.child(id).setValue(v);
+                    Log.d(TAG, "syncPatientOffline: Sincronizando e removendo chave: " + k); // <-- LOG detalhado
+                    editor.remove(k);
+                    syncedCount++;
+                } else {
+                    Log.e(TAG, "syncPatientOffline: Falha ao obter chave push para o nó _offlineSync."); // <-- LOG
                 }
-                editor.remove(k);
             }
         }
         editor.apply();
+        Log.i(TAG, "syncPatientOffline: Sincronização de snapshots concluída. " + syncedCount + " itens processados."); // <-- LOG
     }
 
     // ===================== MÉTODOS ANTIGOS (compatibilidade) =====================
@@ -185,39 +215,45 @@ public class FirebaseHelper {
     // Salva SendData (direito) no caminho antigo: Users/{uid}/DATA/{date}/{id}
     public void saveSendData(ConectInsole.SendData sendData, List<String> eventlist) {
         String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+        Log.i(TAG, "saveSendData (LEGADO): Tentando salvar dado direito para data: " + currentDate); // <-- LOG
 
         if (mDatabase == null) {
             // Sem auth (UID nulo)
             saveSendDataLocally(sendData, currentDate);
+            Log.w(TAG, "saveSendData (LEGADO): Usuário não logado. Salvando apenas localmente."); // <-- LOG (Warning)
             return;
         }
 
         if (NetworkUtils.isNetworkAvailable(context)) {
             String id = mDatabase.child("DATA").push().getKey();
             mDatabase.child("DATA").child(currentDate).child(id).setValue(sendData)
-                    .addOnSuccessListener(aVoid -> System.out.println("SendData salvo no Firebase com sucesso!"))
-                    .addOnFailureListener(e -> System.err.println("Erro ao salvar SendData: " + e.getMessage()));
+                    .addOnSuccessListener(aVoid -> Log.i(TAG, "saveSendData (LEGADO): Salvo no Firebase com sucesso!")) // <-- LOG
+                    .addOnFailureListener(e -> Log.e(TAG, "saveSendData (LEGADO): Erro ao salvar: " + e.getMessage(), e)); // <-- LOG
         } else {
             saveSendDataLocally(sendData, currentDate);
+            Log.i(TAG, "saveSendData (LEGADO): Sem conexão. Salvo localmente."); // <-- LOG
         }
     }
 
     // Salva SendData2 (esquerdo) no caminho antigo: Users/{uid}/DATA2/{date}/{id}
     public void saveSendData2(ConectInsole2.SendData sendData) {
         String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+        Log.i(TAG, "saveSendData2 (LEGADO): Tentando salvar dado esquerdo para data: " + currentDate); // <-- LOG
 
         if (mDatabase == null) {
             saveSendData2Locally(sendData, currentDate);
+            Log.w(TAG, "saveSendData2 (LEGADO): Usuário não logado. Salvando apenas localmente."); // <-- LOG (Warning)
             return;
         }
 
         if (NetworkUtils.isNetworkAvailable(context)) {
             String id = mDatabase.child("DATA2").push().getKey();
             mDatabase.child("DATA2").child(currentDate).child(id).setValue(sendData)
-                    .addOnSuccessListener(aVoid -> System.out.println("SendData2 salvo no Firebase com sucesso!"))
-                    .addOnFailureListener(e -> System.err.println("Erro ao salvar SendData2: " + e.getMessage()));
+                    .addOnSuccessListener(aVoid -> Log.i(TAG, "saveSendData2 (LEGADO): Salvo no Firebase com sucesso!")) // <-- LOG
+                    .addOnFailureListener(e -> Log.e(TAG, "saveSendData2 (LEGADO): Erro ao salvar: " + e.getMessage(), e)); // <-- LOG
         } else {
             saveSendData2Locally(sendData, currentDate);
+            Log.i(TAG, "saveSendData2 (LEGADO): Sem conexão. Salvo localmente."); // <-- LOG
         }
     }
 
@@ -227,6 +263,7 @@ public class FirebaseHelper {
         String key = "sendData_" + System.currentTimeMillis();
         editor.putString(key, sendData.toString());
         editor.apply();
+        Log.d(TAG, "saveSendDataLocally (LEGADO): Dado direito salvo localmente com chave: " + key); // <-- LOG detalhado
     }
 
     public void saveSendData2Locally(ConectInsole2.SendData sendData, String currentDate) {
@@ -234,13 +271,20 @@ public class FirebaseHelper {
         String key = "sendData2_" + System.currentTimeMillis();
         editor.putString(key, sendData.toString());
         editor.apply();
+        Log.d(TAG, "saveSendData2Locally (LEGADO): Dado esquerdo salvo localmente com chave: " + key); // <-- LOG detalhado
     }
 
     public void syncSendDataOffline() {
-        if (!NetworkUtils.isNetworkAvailable(context) || mDatabase == null) return;
+        if (!NetworkUtils.isNetworkAvailable(context)) return;
+        if (mDatabase == null) {
+            Log.e(TAG, "syncSendDataOffline (LEGADO): mDatabase é nulo. Não é possível sincronizar."); // <-- LOG
+            return;
+        }
+        Log.i(TAG, "syncSendDataOffline (LEGADO): Iniciando sincronização de dados DATA."); // <-- LOG
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
         boolean dataSynced = false;
+        int syncedCount = 0;
 
         for (String key : sharedPreferences.getAll().keySet()) {
             String savedData = sharedPreferences.getString(key, null);
@@ -248,18 +292,27 @@ public class FirebaseHelper {
                 String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
                 String id = mDatabase.child("DATA").push().getKey();
                 mDatabase.child("DATA").child(currentDate).child(id).setValue(savedData);
+                Log.d(TAG, "syncSendDataOffline (LEGADO): Sincronizando e removendo chave: " + key); // <-- LOG detalhado
                 editor.remove(key);
                 dataSynced = true;
+                syncedCount++;
             }
         }
         if (dataSynced) editor.apply();
+        Log.i(TAG, "syncSendDataOffline (LEGADO): Sincronização de DATA concluída. " + syncedCount + " itens processados."); // <-- LOG
     }
 
     public void syncSendData2Offline() {
-        if (!NetworkUtils.isNetworkAvailable(context) || mDatabase == null) return;
+        if (!NetworkUtils.isNetworkAvailable(context)) return;
+        if (mDatabase == null) {
+            Log.e(TAG, "syncSendData2Offline (LEGADO): mDatabase é nulo. Não é possível sincronizar."); // <-- LOG
+            return;
+        }
+        Log.i(TAG, "syncSendData2Offline (LEGADO): Iniciando sincronização de dados DATA2."); // <-- LOG
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
         boolean dataSynced = false;
+        int syncedCount = 0;
 
         for (String key : sharedPreferences.getAll().keySet()) {
             String savedData = sharedPreferences.getString(key, null);
@@ -267,10 +320,13 @@ public class FirebaseHelper {
                 String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
                 String id = mDatabase.child("DATA2").push().getKey();
                 mDatabase.child("DATA2").child(currentDate).child(id).setValue(savedData);
+                Log.d(TAG, "syncSendData2Offline (LEGADO): Sincronizando e removendo chave: " + key); // <-- LOG detalhado
                 editor.remove(key);
                 dataSynced = true;
+                syncedCount++;
             }
         }
         if (dataSynced) editor.apply();
+        Log.i(TAG, "syncSendData2Offline (LEGADO): Sincronização de DATA2 concluída. " + syncedCount + " itens processados."); // <-- LOG
     }
 }

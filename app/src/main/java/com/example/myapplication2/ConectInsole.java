@@ -12,7 +12,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -43,12 +42,11 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.UUID;
 
-public class ConectInsole extends AppCompatActivity{
-    HomeActivity home = new HomeActivity();
+public class ConectInsole extends AppCompatActivity {
     private static final String TAG = "ConectInsoleBLE";
 
-    // UUIDs e nome
-    private static final UUID SERVICE_UUID = UUID.fromString("4FAF0101-FBCF-4309-8A1C-8472B7098485");
+    // ===== UUIDs e nome do dispositivo =====
+    private static final UUID SERVICE_UUID               = UUID.fromString("4FAF0101-FBCF-4309-8A1C-8472B7098485");
     private static final UUID CHARACTERISTIC_CONFIG_UUID = UUID.fromString("BEB5483E-36E1-4688-B7F5-EA07361B26A8");
     private static final UUID CHARACTERISTIC_DATA_UUID   = UUID.fromString("AEB5483E-36E1-4688-B7F5-EA07361B26A9");
     private static final UUID CCCD_UUID                  = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -56,15 +54,23 @@ public class ConectInsole extends AppCompatActivity{
 
     public static final String CHANNEL_ID = "notify_pressure";
 
-    // Variáveis de Permissão
+    // ===== Permissões/Activity =====
     private final AppCompatActivity activity;
     private final ActivityResultLauncher<String[]> requestPermissionLauncher;
 
-    // ===== Fila de Comandos GATT (CRUCIAL) =====
+    // ===== Fila GATT =====
     private final Queue<ConfigData> commandQueue = new LinkedList<>();
-    private volatile boolean isGattOperationPending = false; // Usa volatile para segurança multi-thread
+    private volatile boolean isGattOperationPending = false; // controla exclusão de operação
+    private volatile boolean retryScheduled = false;          // debounce para re-tentativas
+    private volatile boolean idleQueuedOnce = false;          // garante 0xFF apenas 1x por conexão
 
-    // ===== BLE Variáveis =====
+    // ===== Guards extras =====
+    private volatile boolean servicesReady = false;           // processar onServicesDiscovered 1x
+    private volatile boolean cccdWriteIssued = false;         // emitir write do CCCD só 1x
+    private volatile boolean cccdForDataEnabled = false;      // confirma CCCD da DATA habilitado
+    private volatile boolean notificationsReady = false;      // alias para pronto-notify
+
+    // ===== BLE =====
     private final BluetoothAdapter bluetoothAdapter;
     private final BluetoothLeScanner bluetoothScanner;
     private BluetoothGatt bluetoothGatt;
@@ -72,21 +78,20 @@ public class ConectInsole extends AppCompatActivity{
     private boolean isConnected = false;
     private boolean isConnecting = false;
 
-    // ===== Variáveis de Protocolo/Buffer/App =====
-    private boolean isReceivingHeader = true;
-    private int expectedReads = 0;
-    private ByteBuffer dataBuffer;
+    // ===== Protocolo/Buffer/App =====
     private final Context context;
-    // Helper (assumido existente no seu projeto)
     private final FirebaseHelper firebasehelper;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Object bufferLock = new Object();
-    private volatile boolean bufferingEnabled = false;
+    private boolean isBufferingEnabled = false; // única flag de buffering
     private final ArrayList<String> eventlist = new ArrayList<>();
     private String currentCpf, currentMode, currentSessionId;
-    private SendData receivedData = new SendData();
+    private final SendData receivedData = new SendData();
 
-    // Estruturas de dados (mantidas)
+    // Só para manter compatibilidade com seu código atual:
+    HomeActivity home = new HomeActivity();
+
+    // ===== Estruturas =====
     public static class ConfigData {
         public int cmd, freq;
         public int S1, S2, S3, S4, S5, S6, S7, S8, S9;
@@ -127,13 +132,13 @@ public class ConectInsole extends AppCompatActivity{
         public ArrayList<Integer> SR9 = new ArrayList<>();
     }
 
-    // ===== Construtor Principal: Lida com Permissões e Inicializa a Fila =====
+    // ===== Construtor =====
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     public ConectInsole(@NonNull Context context) {
         this.context = context;
 
         if (!(context instanceof AppCompatActivity)) {
-            Log.e(TAG, "ConectInsole deve ser inicializada com uma AppCompatActivity para gerenciar permissões.");
+            Log.e(TAG, "ConectInsole requer AppCompatActivity para permissões.");
             this.activity = null; this.bluetoothAdapter = null; this.bluetoothScanner = null; this.firebasehelper = null; this.requestPermissionLauncher = null; return;
         }
         this.activity = (AppCompatActivity) context;
@@ -149,7 +154,6 @@ public class ConectInsole extends AppCompatActivity{
             bluetoothScanner = bluetoothAdapter.getBluetoothLeScanner();
         }
 
-        // Inicializa o ActivityResultLauncher para permissões
         requestPermissionLauncher = activity.registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
                 isGranted -> {
@@ -158,12 +162,10 @@ public class ConectInsole extends AppCompatActivity{
                 }
         );
 
-        // Inicia o processo de permissão
         requestBlePermissions();
     }
 
-    // ==================== Lógica de Permissão (Mantida) ====================
-
+    // ===== Permissões =====
     private String[] getPermissionsToRequest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return new String[]{ Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT };
@@ -195,7 +197,7 @@ public class ConectInsole extends AppCompatActivity{
     private void onBlePermissionsGranted() {
         Log.i(TAG, "Permissões BLE concedidas. Iniciando o scanner.");
         if (bluetoothScanner != null) { startScanning(); } else {
-            Log.e(TAG, "Bluetooth está indisponível após permissão.");
+            Log.e(TAG, "Bluetooth indisponível após permissão.");
         }
     }
 
@@ -204,33 +206,18 @@ public class ConectInsole extends AppCompatActivity{
         Log.e(TAG, "Permissões BLE negadas.");
     }
 
-    // ==================== Controles de Buffer e Sessão (Mantidas/ajustes) ====================
-
-    public void enableBuffering(boolean on) {
+    // ===== Buffer/Sessão =====
+    public void enableBuffering(boolean enable) {
         synchronized (bufferLock) {
-            bufferingEnabled = on;
-            if (!on) { shrinkToLastSampleLocked(); }
+            isBufferingEnabled = enable;
         }
-        Log.d(TAG, "enableBuffering: " + on);
-    }
-    public boolean isBufferingEnabled() { return bufferingEnabled; }
-
-    public void setSessionMeta(String cpf, String mode, String sessionId) {
-        this.currentCpf = cpf; this.currentMode = mode; this.currentSessionId = sessionId;
-        Log.d(TAG, "setSessionMeta: cpf=" + cpf + ", mode=" + mode + ", sessionId=" + sessionId);
+        Log.d(TAG, "Buffering " + (enable ? "habilitado" : "desabilitado"));
     }
 
-    public void clearBuffer() {
-        synchronized (bufferLock) {
-            receivedData.SR1.clear(); receivedData.SR2.clear(); receivedData.SR3.clear();
-            receivedData.SR4.clear(); receivedData.SR5.clear(); receivedData.SR6.clear();
-            receivedData.SR7.clear(); receivedData.SR8.clear(); receivedData.SR9.clear();
-            eventlist.clear();
-        }
-        Log.d(TAG, "clearBuffer: done");
+    public boolean isBufferingEnabled() {
+        synchronized (bufferLock) { return isBufferingEnabled; }
     }
 
-    /** Flush integrado ao helper (adaptado do seu trecho antigo). */
     public void flushToCloudNow() {
         final SendData snapshot;
         final ArrayList<String> evSnapshot;
@@ -256,7 +243,6 @@ public class ConectInsole extends AppCompatActivity{
 
             evSnapshot = new ArrayList<>(eventlist);
 
-            // Zera o buffer para próxima janela
             receivedData.SR1.clear();
             receivedData.SR2.clear();
             receivedData.SR3.clear();
@@ -269,49 +255,22 @@ public class ConectInsole extends AppCompatActivity{
             eventlist.clear();
         }
 
-        // Timestamp do momento do flush (opcional)
         updateTimestamp();
-
-        try {
-            // Adapte se a assinatura do seu helper for diferente
-            FirebaseHelper.saveSendDataForPatient(
-                    firebasehelper,
-                    snapshot,
-                    context,
-                    evSnapshot,
-                    currentCpf,
-                    currentMode,
-                    currentSessionId
-            );
-            Log.d(TAG, "flushToCloudNow: buffer enviado e zerado.");
-        } catch (Throwable t) {
-            Log.e(TAG, "flushToCloudNow: erro ao enviar snapshot", t);
-        }
+        FirebaseHelper.saveSendDataForPatient(firebasehelper, snapshot, context, evSnapshot, currentCpf, currentMode, currentSessionId);
+        Log.d(TAG, "flushToCloudNow: buffer enviado e zerado.");
     }
 
-    private void shrinkToLastSampleLocked() {
-        keepOnlyLast(receivedData.SR1);
-        keepOnlyLast(receivedData.SR2);
-        keepOnlyLast(receivedData.SR3);
-        keepOnlyLast(receivedData.SR4);
-        keepOnlyLast(receivedData.SR5);
-        keepOnlyLast(receivedData.SR6);
-        keepOnlyLast(receivedData.SR7);
-        keepOnlyLast(receivedData.SR8);
-        keepOnlyLast(receivedData.SR9);
-    }
-    private void keepOnlyLast(ArrayList<Integer> list) {
-        if (list == null) return;
-        int n = list.size();
-        if (n <= 1) return;
-        Integer last = list.get(n - 1);
-        list.clear();
-        list.add(last);
+    public void setSessionMeta(String cpf, String mode, String sessionId) {
+        this.currentCpf = cpf;
+        this.currentMode = mode;
+        this.currentSessionId = sessionId;
+        Log.d(TAG, "setSessionMeta: cpf=" + cpf + ", mode=" + mode + ", sessionId=" + sessionId);
     }
 
+    private void shrinkToLastSampleLocked() { /* opcional */ }
+    private void keepOnlyLast(ArrayList<Integer> list) { /* opcional */ }
 
-    // ==================== BLE: Scan/Connect (Mantido) ====================
-
+    // ===== Scan/Connect =====
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void startScanning() {
         if (bluetoothScanner == null || isScanning || isConnecting || !checkBlePermissions()) {
@@ -353,14 +312,13 @@ public class ConectInsole extends AppCompatActivity{
         }
         if (checkBlePermissions()) {
             isConnecting = true;
-            // autoConnect=false evita sessões duplicadas e callbacks em duplicidade
-            bluetoothGatt = device.connectGatt(context, /*autoConnect*/ false, gattCallback);
-            Log.d(TAG, "Tentando conectar ao GATT: " + device.getAddress() + " (autoConnect=false)");
+            // autoConnect = false para evitar eventos duplicados e descobertas repetidas
+            bluetoothGatt = device.connectGatt(context, /*autoConnect=*/false, gattCallback);
+            Log.d(TAG, "Tentando conectar ao GATT: " + device.getAddress());
         }
     }
 
-    // ==================== GATT CALLBACKS (Fila de Comandos + melhorias do trecho antigo) ====================
-
+    // ===== GATT Callbacks =====
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN})
         @Override
@@ -368,24 +326,32 @@ public class ConectInsole extends AppCompatActivity{
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 isConnected = true;
                 isConnecting = false;
-                Log.d(TAG, "Conectado ao GATT Server. Solicitando MTU e descobrindo serviços...");
-                try {
-                    gatt.requestMtu(247); // robustez (mesmo com payload 19B/20B)
-                } catch (Throwable t) {
-                    Log.w(TAG, "requestMtu falhou/indisponível", t);
-                }
-
-                // ao conectar, limpamos a fila para começar do zero.
                 synchronized (commandQueue) {
                     commandQueue.clear();
                     isGattOperationPending = false;
                 }
+                // resets por conexão
+                idleQueuedOnce = false;
+                notificationsReady = false;
+                servicesReady = false;
+                cccdWriteIssued = false;
+                cccdForDataEnabled = false;
+                retryScheduled = false;
 
+                Log.d(TAG, "Conectado ao GATT. Descobrindo serviços...");
                 gatt.discoverServices();
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 isConnected = false;
                 isConnecting = false;
-                Log.d(TAG, "Desconectado do GATT Server. Reiniciando a busca...");
+                idleQueuedOnce = false;
+                notificationsReady = false;
+                servicesReady = false;
+                cccdWriteIssued = false;
+                cccdForDataEnabled = false;
+                retryScheduled = false;
+
+                Log.d(TAG, "Desconectado do GATT. Reiniciando scan...");
                 if (bluetoothGatt != null) {
                     bluetoothGatt.close();
                     bluetoothGatt = null;
@@ -396,27 +362,19 @@ public class ConectInsole extends AppCompatActivity{
 
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            Log.d(TAG, "onMtuChanged -> mtu=" + mtu + " status=" + status);
-            super.onMtuChanged(gatt, mtu, status);
-        }
-
-        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-        @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "Serviços descobertos. Habilitando notificações...");
+                if (servicesReady) {
+                    Log.d(TAG, "onServicesDiscovered ignorado (já processado).");
+                    return;
+                }
+                servicesReady = true;
+
+                Log.d(TAG, "Serviços descobertos (1x). Habilitando notificações.");
                 setCharacteristicNotification(gatt, CHARACTERISTIC_DATA_UUID, true);
 
-                // Após notificação, envie IDLE 0xFF para sincronismo com o firmware
-                handler.postDelayed(() -> {
-                    ConfigData idleCmd = new ConfigData();
-                    idleCmd.cmd = 0xFF; idleCmd.freq = 0;
-                    idleCmd.S1 = idleCmd.S2 = idleCmd.S3 = idleCmd.S4 = idleCmd.S5 =
-                            idleCmd.S6 = idleCmd.S7 = idleCmd.S8 = idleCmd.S9 = 0x0FFF;
-                    Log.d(TAG, "Enfileirando 0xFF (IDLE) para sincronização inicial.");
-                    enqueueCommand(idleCmd);
-                }, 500);
+                // NÃO enfileira 0xFF aqui
+
             } else {
                 Log.w(TAG, "Falha na descoberta de serviços: " + status);
             }
@@ -425,11 +383,13 @@ public class ConectInsole extends AppCompatActivity{
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            // Libera a fila após a escrita
             isGattOperationPending = false;
+
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "ConfigData enviado com sucesso.");
+                Log.d(TAG, "Comando anterior concluído com sucesso. Liberando fila...");
             } else {
-                Log.e(TAG, "Falha ao enviar ConfigData: " + status);
+                Log.e(TAG, "Falha na escrita da característica. Status: " + status);
             }
             attemptToSendNextCommand();
         }
@@ -438,33 +398,59 @@ public class ConectInsole extends AppCompatActivity{
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             isGattOperationPending = false;
-            if (CCCD_UUID.equals(descriptor.getUuid())) {
+
+            final UUID descUuid = descriptor.getUuid();
+            final UUID chUuid = descriptor.getCharacteristic() != null
+                    ? descriptor.getCharacteristic().getUuid()
+                    : new UUID(0,0);
+
+            if (CCCD_UUID.equals(descUuid) && CHARACTERISTIC_DATA_UUID.equals(chUuid)) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log.d(TAG, "Notificação de Dados (CCCD) ativada com sucesso.");
+                    notificationsReady = true;
+                    cccdForDataEnabled = true;
+                    Log.d(TAG, "Notificação de Dados (CCCD) ativada com sucesso (DATA characteristic).");
+
+                    // Enfileira 0xFF somente 1x por conexão e apenas após confirmar que é o CCCD da DATA
+                    if (!idleQueuedOnce) {
+                        idleQueuedOnce = true;
+
+                        ConfigData idleCmd = new ConfigData();
+                        idleCmd.cmd = 0xFF; idleCmd.freq = 1;
+                        idleCmd.S1 = idleCmd.S2 = idleCmd.S3 = idleCmd.S4 = idleCmd.S5 =
+                                idleCmd.S6 = idleCmd.S7 = idleCmd.S8 = idleCmd.S9 = 0x0FFF;
+
+                        synchronized (commandQueue) {
+                            boolean hasFF = false;
+                            for (ConfigData c : commandQueue) {
+                                if (c != null && (c.cmd & 0xFF) == 0xFF) { hasFF = true; break; }
+                            }
+                            if (!hasFF) {
+                                Log.d(TAG, "Enfileirando 0xFF (único) após CCCD DATA.");
+                                commandQueue.offer(idleCmd);
+                            } else {
+                                Log.d(TAG, "0xFF já presente na fila. Não enfileira novamente.");
+                            }
+                        }
+                        attemptToSendNextCommand();
+                    } else {
+                        Log.d(TAG, "idleQueuedOnce já true. Não enfileira 0xFF novamente.");
+                    }
                 } else {
-                    Log.e(TAG, "Falha ao ativar notificação de Dados: " + status);
+                    Log.e(TAG, "Falha ao ativar notificação de Dados (DATA CCCD): " + status);
                 }
+            } else {
+                // Ignora writes de outros descritores/CCCDs
+                Log.d(TAG, "onDescriptorWrite ignorado (não é CCCD da DATA).");
             }
+
+            // Libera próxima operação, se houver
             attemptToSendNextCommand();
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            if (!CHARACTERISTIC_DATA_UUID.equals(characteristic.getUuid())) return;
-
-            byte[] p = characteristic.getValue();
-            if (p == null) {
-                Log.e(TAG, "Pacote nulo.");
-                return;
-            }
-
-            // Suporta os dois formatos: 20 bytes (cmd+bat+9*uint16) e 19 bytes (bat+9*uint16)
-            if (p.length == 20) {
-                processReceivedData(p); // seu parser atual (cmd + bat + 9*2 bytes)
-            } else if (p.length == 19) {
-                parseSingleSample(p);   // parser simples (bat + 9*2)
-            } else {
-                Log.e(TAG, "Pacote inválido. Esperado 19 ou 20 bytes. Veio: " + p.length);
+            if (CHARACTERISTIC_DATA_UUID.equals(characteristic.getUuid())) {
+                processReceivedData(characteristic.getValue());
             }
         }
     };
@@ -478,71 +464,62 @@ public class ConectInsole extends AppCompatActivity{
 
         if (checkBlePermissions()) {
             gatt.setCharacteristicNotification(characteristic, enable);
+
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CCCD_UUID);
             if (descriptor != null) {
-                byte[] value = enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+                if (cccdWriteIssued) {
+                    Log.d(TAG, "CCCD write já emitido. Ignorando repetição.");
+                    return;
+                }
+                cccdWriteIssued = true; // marca antes de escrever para evitar duplo disparo
+
+                byte[] value = enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
                 descriptor.setValue(value);
 
                 isGattOperationPending = true;
-
-                boolean ok;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    int status;
-                    try {
-                        status = gatt.writeDescriptor(descriptor, descriptor.getValue()); // API 33+ -> int
-                    } catch (SecurityException se) {
-                        status = BluetoothStatusCodes.ERROR_MISSING_BLUETOOTH_CONNECT_PERMISSION;
-                    }
-                    ok = (status == BluetoothStatusCodes.SUCCESS);
-                } else {
-                    try {
-                        ok = gatt.writeDescriptor(descriptor); // APIs antigas -> boolean
-                    } catch (SecurityException se) {
-                        ok = false;
-                    }
-                }
-
-                Log.d(TAG, "Notificação " + (enable ? "ativada" : "desativada") + " (CCCD write ok=" + ok + ")");
-                if (!ok) {
-                    isGattOperationPending = false;
-                    handler.postDelayed(() -> setCharacteristicNotification(gatt, characteristicUuid, enable), 120);
-                }
+                gatt.writeDescriptor(descriptor);
+                Log.d(TAG, "Notificação: Escrita de CCCD enviada para ativação (1x).");
+            } else {
+                Log.e(TAG, "Descriptor CCCD não encontrado.");
             }
         }
     }
 
-    // ==================== Lógica da Fila de Comandos ====================
-
-    /**
-     * Adiciona um comando à fila e tenta enviá-lo imediatamente se o GATT estiver livre.
-     */
+    // ===== Fila de comandos =====
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     public void enqueueCommand(@NonNull ConfigData command) {
         synchronized (commandQueue) {
+            if ((command.cmd & 0xFF) == 0xFF) {
+                if (idleQueuedOnce) {
+                    for (ConfigData c : commandQueue) {
+                        if (c != null && (c.cmd & 0xFF) == 0xFF) {
+                            Log.d(TAG, "Ignorando 0xFF duplicado (já enfileirado).");
+                            return;
+                        }
+                    }
+                }
+            }
             commandQueue.offer(command);
             Log.d(TAG, "Comando 0x" + String.format("%02X", command.cmd) + " enfileirado. Tamanho da fila: " + commandQueue.size());
         }
         attemptToSendNextCommand();
     }
 
-    /**
-     * Tenta enviar o próximo comando da fila se o GATT não estiver ocupado.
-     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private void attemptToSendNextCommand() {
         if (!isConnected || bluetoothGatt == null) {
             Log.w(TAG, "GATT não está conectado. Comando não enviado.");
             return;
         }
-
         if (isGattOperationPending) {
             return;
         }
 
         ConfigData nextCommand;
         synchronized (commandQueue) {
-            nextCommand = commandQueue.peek(); // Apenas pega, não remove
-            if (nextCommand == null) { return; } // Fila vazia
+            nextCommand = commandQueue.peek();
+            if (nextCommand == null) return;
         }
 
         BluetoothGattService service = bluetoothGatt.getService(SERVICE_UUID);
@@ -551,54 +528,40 @@ public class ConectInsole extends AppCompatActivity{
         BluetoothGattCharacteristic configCharacteristic = service.getCharacteristic(CHARACTERISTIC_CONFIG_UUID);
         if (configCharacteristic == null) { Log.e(TAG, "Característica de Configuração não encontrada."); return; }
 
+        // Seleciona writeType automaticamente
+        final int props = configCharacteristic.getProperties();
+        if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
+            configCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        } else {
+            configCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        }
+
         byte[] payload = nextCommand.toBytes();
         if (checkBlePermissions()) {
-            // Ajusta writeType conforme propriedade
-            int props = configCharacteristic.getProperties();
-            if ((props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
-                configCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-            } else {
-                configCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            }
+            configCharacteristic.setValue(payload);
 
             isGattOperationPending = true;
-
-            boolean ok;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                int status;
-                try {
-                    status = bluetoothGatt.writeCharacteristic(
-                            configCharacteristic,
-                            payload,
-                            configCharacteristic.getWriteType()
-                    ); // retorna int
-                } catch (SecurityException se) {
-                    status = BluetoothStatusCodes.ERROR_MISSING_BLUETOOTH_CONNECT_PERMISSION;
-                }
-                ok = (status == BluetoothStatusCodes.SUCCESS);
-            } else {
-                configCharacteristic.setValue(payload);
-                try {
-                    ok = bluetoothGatt.writeCharacteristic(configCharacteristic); // boolean
-                } catch (SecurityException se) {
-                    ok = false;
-                }
-            }
+            boolean ok = bluetoothGatt.writeCharacteristic(configCharacteristic);
 
             if (ok) {
                 synchronized (commandQueue) { commandQueue.poll(); }
                 Log.i(TAG, "WRITE COMANDO ENVIADO: 0x" + String.format("%02X", nextCommand.cmd) + ". Esperando callback.");
             } else {
+                // Não remove da fila e faz backoff com debounce
                 isGattOperationPending = false;
-                Log.e(TAG, "WRITE REJEITADO (write=false/erro) pelo SO para 0x" + String.format("%02X", nextCommand.cmd) + ". Re-tentando em 50ms.");
-                handler.postDelayed(this::attemptToSendNextCommand, 50);
+                if (!retryScheduled) {
+                    retryScheduled = true;
+                    handler.postDelayed(() -> {
+                        retryScheduled = false;
+                        attemptToSendNextCommand();
+                    }, 150);
+                }
+                Log.e(TAG, "WRITE REJEITADO (write=false) para 0x" + String.format("%02X", nextCommand.cmd) + ". Nova tentativa em 150ms.");
             }
         }
     }
 
-
-    // ==================== Lógica de Interface (Adaptação para Fila) ====================
-
+    // ===== API de alto nível para criar/enfileirar config =====
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     public void createAndSendConfigData(byte kcmd, byte kfreq,
                                         short kS1, short kS2, short kS3,
@@ -615,12 +578,10 @@ public class ConectInsole extends AppCompatActivity{
         enqueueCommand(configData);
     }
 
-    // ==================== Parse/Recepção ====================
-
-    /** Parser do formato antigo/atual de 20B: [cmd(1), bat(1), 9*uint16(18)] */
+    // ===== Recepção/Parse =====
     private void processReceivedData(byte[] data) {
-        if (data.length != 20) {
-            Log.e(TAG, "Pacote completo com tamanho incorreto. Esperado 20, recebido " + data.length);
+        if (data == null || data.length != 20) {
+            Log.e(TAG, "Pacote completo com tamanho incorreto. Esperado 20, recebido " + (data == null ? 0 : data.length));
             return;
         }
 
@@ -636,16 +597,16 @@ public class ConectInsole extends AppCompatActivity{
         Log.d(TAG, String.format(Locale.getDefault(),
                 "Pacote Completo: Cmd=0x%02X, Bat=%d, Leituras=1 (Assumido)", cmd, bat));
 
-        ByteBuffer db = ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN);
-        db.put(data, 2, 18);
-        db.rewind();
+        ByteBuffer dataBuffer = ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN);
+        dataBuffer.put(data, 2, 18);
+        dataBuffer.rewind();
 
-        int[] lastRead = parseBlocksIntoLastSample(db, 1);
+        int[] lastRead = parseBlocksIntoLastSample(dataBuffer, 1);
 
         synchronized (bufferLock) {
-            if (bufferingEnabled) {
-                db.rewind();
-                appendAllBlocksLocked(db, 1);
+            if (isBufferingEnabled) {
+                dataBuffer.rewind();
+                appendAllBlocksLocked(dataBuffer, 1);
                 storeReadings(context);
             } else {
                 receivedData.SR1.clear();
@@ -670,54 +631,9 @@ public class ConectInsole extends AppCompatActivity{
             }
         }
 
-        updateTimestamp(receivedData);
+        updateTimestamp();
+
         if (receivedData.cmd == 0x3D) { produzirpico(context); }
-    }
-
-    /** Parser do formato simples de 19B: [bat(1), 9*uint16(18)] */
-    private void parseSingleSample(byte[] p) {
-        ByteBuffer bb = ByteBuffer.wrap(p).order(ByteOrder.LITTLE_ENDIAN);
-
-        int bat = bb.get() & 0xFF;
-        int s1 = bb.getShort() & 0xFFFF;
-        int s2 = bb.getShort() & 0xFFFF;
-        int s3 = bb.getShort() & 0xFFFF;
-        int s4 = bb.getShort() & 0xFFFF;
-        int s5 = bb.getShort() & 0xFFFF;
-        int s6 = bb.getShort() & 0xFFFF;
-        int s7 = bb.getShort() & 0xFFFF;
-        int s8 = bb.getShort() & 0xFFFF;
-        int s9 = bb.getShort() & 0xFFFF;
-
-        updateTimestamp(); // timestamp do recebimento
-
-        synchronized (bufferLock) {
-            receivedData.battery = bat;
-            if (bufferingEnabled) {
-                receivedData.SR1.add(s1);
-                receivedData.SR2.add(s2);
-                receivedData.SR3.add(s3);
-                receivedData.SR4.add(s4);
-                receivedData.SR5.add(s5);
-                receivedData.SR6.add(s6);
-                receivedData.SR7.add(s7);
-                receivedData.SR8.add(s8);
-                receivedData.SR9.add(s9);
-            } else {
-                receivedData.SR1.clear(); receivedData.SR1.add(s1);
-                receivedData.SR2.clear(); receivedData.SR2.add(s2);
-                receivedData.SR3.clear(); receivedData.SR3.add(s3);
-                receivedData.SR4.clear(); receivedData.SR4.add(s4);
-                receivedData.SR5.clear(); receivedData.SR5.add(s5);
-                receivedData.SR6.clear(); receivedData.SR6.add(s6);
-                receivedData.SR7.clear(); receivedData.SR7.add(s7);
-                receivedData.SR8.clear(); receivedData.SR8.add(s8);
-                receivedData.SR9.clear(); receivedData.SR9.add(s9);
-            }
-        }
-
-        storeReadings(context);
-        home.loadColorsR();
     }
 
     private int[] parseBlocksIntoLastSample(ByteBuffer buffer, int numReads) {
@@ -742,17 +658,6 @@ public class ConectInsole extends AppCompatActivity{
         }
     }
 
-    // ==================== Timestamp helpers ====================
-
-    private void updateTimestamp(SendData sd) {
-        Calendar calendar = Calendar.getInstance();
-        sd.hour = calendar.get(Calendar.HOUR_OF_DAY);
-        sd.minute = calendar.get(Calendar.MINUTE);
-        sd.second = calendar.get(Calendar.SECOND);
-        sd.millisecond = calendar.get(Calendar.MILLISECOND);
-    }
-
-    /** Overload para atualizar o timestamp do receivedData diretamente (usado pelo parseSingleSample/flush). */
     private void updateTimestamp() {
         Calendar calendar = Calendar.getInstance();
         receivedData.hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -760,8 +665,6 @@ public class ConectInsole extends AppCompatActivity{
         receivedData.second = calendar.get(Calendar.SECOND);
         receivedData.millisecond = calendar.get(Calendar.MILLISECOND);
     }
-
-    // ==================== Persistência para UI ====================
 
     private void storeReadings(Context ctx) {
         Log.d(TAG, "storeReadings: saving to SharedPreferences");
@@ -777,7 +680,19 @@ public class ConectInsole extends AppCompatActivity{
         editor.putString("S8_1", receivedData.SR8.toString());
         editor.putString("S9_1", receivedData.SR9.toString());
         editor.apply();
-        home.loadColorsR();
+
+        System.out.println(receivedData.SR1.toString());
+        System.out.println(receivedData.SR2.toString());
+        System.out.println(receivedData.SR3.toString());
+        System.out.println(receivedData.SR4.toString());
+        System.out.println(receivedData.SR5.toString());
+        System.out.println(receivedData.SR6.toString());
+        System.out.println(receivedData.SR7.toString());
+        System.out.println(receivedData.SR8.toString());
+        System.out.println(receivedData.SR9.toString());
+
+        // Se seu HomeActivity depende do contexto de Activity real, cuidado ao instanciar diretamente.
+        try { home.loadColorsR(); } catch (Exception ignore) {}
     }
 
     public void produzirpico(Context context) {

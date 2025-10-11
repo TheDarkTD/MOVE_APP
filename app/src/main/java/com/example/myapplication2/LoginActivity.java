@@ -26,8 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     Button mLoginBtn;
     TextView mCreateBtn;
     FirebaseAuth fAuth;
-    ConectInsole conectInsole;
-    ConectInsole2 conectInsole2;
+
     String uid = null;
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
@@ -42,8 +41,6 @@ public class LoginActivity extends AppCompatActivity {
         edit.apply();
 
         fAuth = FirebaseAuth.getInstance();
-        conectInsole  = new ConectInsole(this);
-        conectInsole2 = new ConectInsole2(this);
 
         mEmail      = findViewById(R.id.email);
         mPassword   = findViewById(R.id.password);

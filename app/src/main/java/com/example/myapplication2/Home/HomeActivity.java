@@ -76,6 +76,7 @@ public class HomeActivity extends AppCompatActivity {
     private ConectInsole conectar;   // direito
     private ConectInsole2 conectar2; // esquerdo
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -216,21 +217,25 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // ====== Heatmap do pé direito ======
+    // ====== Heatmap do pé direito ======
     public void loadColorsR() {
+        // Se não estiver no thread da UI, re-agende e saia:
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            runOnUiThread(this::loadColorsR);
+            return;
+        }
+
         Log.d(TAG, "loadColorsR: called");
         SharedPreferences prefs = getSharedPreferences("My_Appinsolereadings", MODE_PRIVATE);
         short[][] sensorReadings = loadSensorReadings(prefs);
         Log.d(TAG, "loadColorsR: sensorReadings=" + Arrays.deepToString(sensorReadings));
 
         float[] leituraAtual = null;
-
         if (sensorReadings != null && sensorReadings.length >= 9 && sensorReadings[0].length > 0) {
             int ultimo = sensorReadings[0].length - 1;
             leituraAtual = new float[9];
-            for (int i = 0; i < 9; i++) {
-                leituraAtual[i] = sensorReadings[i][ultimo];
-            }
-            lastLeituraR = leituraAtual; // atualiza ultimo dado
+            for (int i = 0; i < 9; i++) leituraAtual[i] = sensorReadings[i][ultimo];
+            lastLeituraR = leituraAtual;
         } else if (lastLeituraR != null) {
             Log.w(TAG, "loadColorsR: usando última leitura salva por dados nulos");
             leituraAtual = lastLeituraR;
@@ -251,26 +256,30 @@ public class HomeActivity extends AppCompatActivity {
         sensoresR.add(new HeatMapViewR.SensorRegionR(0.51f, 0.72f, leituraAtual[6], r));
         sensoresR.add(new HeatMapViewR.SensorRegionR(0.49f, 0.85f, leituraAtual[7], r));
         sensoresR.add(new HeatMapViewR.SensorRegionR(0.34f, 0.85f, leituraAtual[8], r));
+
         heatmapViewR.setRegions(sensoresR);
-        Log.d(TAG, "loadColorsR: regions set");
+        // Força repintar (caso o custom view não chame sozinho):
+        heatmapViewR.postInvalidateOnAnimation(); // ou heatmapViewR.invalidate()
     }
 
     // ====== Heatmap do pé esquerdo ======
     private void loadColorsL() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            runOnUiThread(this::loadColorsL);
+            return;
+        }
+
         Log.d(TAG, "loadColorsL: called");
         SharedPreferences prefs = getSharedPreferences("My_Appinsolereadings2", MODE_PRIVATE);
         short[][] sensorReadings = loadSensorReadings2(prefs);
         Log.d(TAG, "loadColorsL: sensorReadings=" + Arrays.deepToString(sensorReadings));
 
         float[] leituraAtual = null;
-
         if (sensorReadings != null && sensorReadings.length >= 9 && sensorReadings[0].length > 0) {
             int ultimo = sensorReadings[0].length - 1;
             leituraAtual = new float[9];
-            for (int i = 0; i < 9; i++) {
-                leituraAtual[i] = sensorReadings[i][ultimo];
-            }
-            lastLeituraL = leituraAtual; // atualiza ultimo dado
+            for (int i = 0; i < 9; i++) leituraAtual[i] = sensorReadings[i][ultimo];
+            lastLeituraL = leituraAtual;
         } else if (lastLeituraL != null) {
             Log.w(TAG, "loadColorsL: usando última leitura salva por dados nulos");
             leituraAtual = lastLeituraL;
@@ -292,9 +301,11 @@ public class HomeActivity extends AppCompatActivity {
         sensoresL.add(new HeatMapViewL.SensorRegionL(0.48f, 0.75f, leituraAtual[6], r));
         sensoresL.add(new HeatMapViewL.SensorRegionL(0.51f, 0.87f, leituraAtual[7], r));
         sensoresL.add(new HeatMapViewL.SensorRegionL(0.65f, 0.87f, leituraAtual[8], r));
+
         heatmapViewL.setRegions(sensoresL);
-        Log.d(TAG, "loadColorsL: regions set");
+        heatmapViewL.postInvalidateOnAnimation(); // ou heatmapViewL.invalidate()
     }
+
 
     // ====== Leitura das prefs (direito) ======
     private short[][] loadSensorReadings(SharedPreferences prefs) {
@@ -338,7 +349,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         return result;
     }
-
+    public interface Listener { void onNewReading(); } // simples
 
 
 }
