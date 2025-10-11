@@ -178,6 +178,7 @@ public class HomeActivity extends AppCompatActivity {
         INICIAR.setOnClickListener(v -> {
             Log.d(TAG, "ReadBtn: request readings");
             stopService(new Intent(this, DataCaptureService.class));
+            sessionId = newSessionId();
             conectar.setSessionMeta(cpf, mode, sessionId);   // pé direito
             conectar.enableBuffering(true);
             conectar.createAndSendConfigData((byte) 0x3A, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
