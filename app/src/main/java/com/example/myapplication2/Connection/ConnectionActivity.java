@@ -75,8 +75,6 @@ public class ConnectionActivity extends AppCompatActivity {
         }
         if (InLeft.equals("true")) {
             conectar2.createAndSendConfigData(cmd, freq, S1, S2, S3, S4, S5, S6, S7, S8, S9);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                conectar2.receiveData(ConnectionActivity.this);}, 1500);
         }
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomnavview3);

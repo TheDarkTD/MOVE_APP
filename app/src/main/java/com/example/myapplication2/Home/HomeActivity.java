@@ -26,8 +26,6 @@ import com.example.myapplication2.exam.ExamModeActivity;
 import com.example.myapplication2.patient.PatientHubActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,8 +43,7 @@ public class HomeActivity extends AppCompatActivity {
     private String cpf;
     private String mode;
     private String sessionId;
-    private boolean running = false;
-    private final Handler autoStopHandler = new Handler();
+    private final Handler autoStopHandler = new Handler(Looper.getMainLooper());
 
     // ====== Preferências / seleção de pés ======
     private SharedPreferences sharedPreferences;
@@ -73,9 +70,8 @@ public class HomeActivity extends AppCompatActivity {
     private final List<HeatMapViewR.SensorRegionR> sensoresR = new ArrayList<>();
 
     // ====== Conectores BLE ======
-    private ConectInsole conectar;   // direito
-    private ConectInsole2 conectar2; // esquerdo
-
+    private ConectInsole conectar;   // direito (USD)
+    private ConectInsole2 conectar2; // esquerdo (USE)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,40 +171,54 @@ public class HomeActivity extends AppCompatActivity {
         // Atualiza mostradores (com últimas leituras)
         loadColorsL();
         loadColorsR();
+
         INICIAR.setOnClickListener(v -> {
             Log.d(TAG, "ReadBtn: request readings");
-            stopService(new Intent(this, DataCaptureService.class));
+            stopService(new Intent(this, DataCaptureService.class)); // você já encerra o serviço antes de iniciar a captura
+
             sessionId = newSessionId();
-            conectar.setSessionMeta(cpf, mode, sessionId);   // pé direito
+
+            // USD (direito)
+            conectar.setSessionMeta(cpf, mode, sessionId);
             conectar.enableBuffering(true);
             conectar.createAndSendConfigData((byte) 0x3A, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-            //conectar2.setSessionMeta(cpf, mode, sessionId);  // pé esquerdo (se usar)
-            //conectar2.enableBuffering(true);
-            //conectar2.createAndSendConfigData((byte) 0x3A, freq, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+
+            // USE (esquerdo)
+            conectar2.setSessionMeta(cpf, mode, sessionId);
+            conectar2.enableBuffering(true);
+            conectar2.createAndSendConfigData((byte) 0x3A, (byte) 1, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+
+            // Modo estático: para automaticamente após 10s
             if ("estatico".equalsIgnoreCase(mode)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    conectar.flushToCloudNow();
-                    conectar.enableBuffering(false);
-                    conectar.createAndSendConfigData((byte) 0x3B, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-                    //conectar2.flushToCloudNow();
-                    //conectar2.enableBuffering(false);
-                    //conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+                autoStopHandler.postDelayed(() -> {
+                    try {
+                        conectar.flushToCloudNow();
+                        conectar.enableBuffering(false);
+                        conectar.createAndSendConfigData((byte) 0x3B, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+                    } catch (Exception ignore) {}
 
-
-                }, 10000);
+                    try {
+                        conectar2.flushToCloudNow();
+                        conectar2.enableBuffering(false);
+                        conectar2.createAndSendConfigData((byte) 0x3B, (byte) 1, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+                    } catch (Exception ignore) {}
+                }, 10_000);
             }
-
         });
+
         PARAR.setOnClickListener(v -> {
-            conectar.flushToCloudNow();
-            conectar.enableBuffering(false);
-            conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-            //conectar2.flushToCloudNow();
-            //conectar2.enableBuffering(false);
-            //conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-            //conectar2.clearBuffer();
-        });
+            try {
+                conectar.flushToCloudNow();
+                conectar.enableBuffering(false);
+                conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+            } catch (Exception ignore) {}
 
+            try {
+                conectar2.flushToCloudNow();
+                conectar2.enableBuffering(false);
+                conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+            } catch (Exception ignore) {}
+        });
     }
 
     // ====== Controle do ciclo start/stop ======
@@ -217,7 +227,6 @@ public class HomeActivity extends AppCompatActivity {
                 .format(new Date());
     }
 
-    // ====== Heatmap do pé direito ======
     // ====== Heatmap do pé direito ======
     public void loadColorsR() {
         // Se não estiver no thread da UI, re-agende e saia:
@@ -259,12 +268,11 @@ public class HomeActivity extends AppCompatActivity {
         sensoresR.add(new HeatMapViewR.SensorRegionR(0.34f, 0.85f, leituraAtual[8], r));
 
         heatmapViewR.setRegions(sensoresR);
-        // Força repintar (caso o custom view não chame sozinho):
-        heatmapViewR.postInvalidateOnAnimation(); // ou heatmapViewR.invalidate()
+        heatmapViewR.postInvalidateOnAnimation();
     }
 
     // ====== Heatmap do pé esquerdo ======
-    private void loadColorsL() {
+    public void loadColorsL() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             runOnUiThread(this::loadColorsL);
             return;
@@ -304,9 +312,8 @@ public class HomeActivity extends AppCompatActivity {
         sensoresL.add(new HeatMapViewL.SensorRegionL(0.65f, 0.87f, leituraAtual[8], r));
 
         heatmapViewL.setRegions(sensoresL);
-        heatmapViewL.postInvalidateOnAnimation(); // ou heatmapViewL.invalidate()
+        heatmapViewL.postInvalidateOnAnimation();
     }
-
 
     // ====== Leitura das prefs (direito) ======
     private short[][] loadSensorReadings(SharedPreferences prefs) {
@@ -350,7 +357,58 @@ public class HomeActivity extends AppCompatActivity {
         }
         return result;
     }
+
     public interface Listener { void onNewReading(); } // simples
 
+    // ====== NOVO: limpeza total de BLE e serviços ao sair da Home ======
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private void cleanupBleAndServices() {
+        Log.i(TAG, "cleanupBleAndServices(): iniciando teardown BLE/handlers/serviços");
 
+        // Cancela auto-stop pendente do modo estático
+        try { autoStopHandler.removeCallbacksAndMessages(null); } catch (Exception ignore) {}
+
+        // Opcional: envie STOP (0x3B) rapidamente antes de desmontar (best-effort)
+        try { if (conectar != null)
+            conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+        } catch (Exception ignore) {}
+        try { if (conectar2 != null)
+            conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+        } catch (Exception ignore) {}
+
+        // Desmonta BLE (usa o shutdown() que você adicionou nas classes)
+        try { if (conectar != null)  conectar.shutdown(); } catch (Exception ignore) {}
+        try { if (conectar2 != null) conectar2.shutdown(); } catch (Exception ignore) {}
+        conectar  = null;
+        conectar2 = null;
+
+        // Para serviços relacionados à captura (se a Home é quem comanda)
+        try { stopService(new Intent(this, DataCaptureService.class)); } catch (Exception ignore) {}
+        // Se o AppForegroundService for específico da Home, pode parar também:
+        // try { stopService(new Intent(this, AppForegroundService.class)); } catch (Exception ignore) {}
+
+        // Zera referências de UI (ajuda GC; opcional)
+        heatmapViewL = null;
+        heatmapViewR = null;
+        frameL = null; frameR = null;
+        maskL = null; maskR = null;
+
+        // Zera caches locais (opcional)
+        lastLeituraL = null;
+        lastLeituraR = null;
+
+        Log.i(TAG, "cleanupBleAndServices(): concluído");
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    @Override protected void onStop() {
+        super.onStop();
+        cleanupBleAndServices();
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        cleanupBleAndServices();
+    }
 }

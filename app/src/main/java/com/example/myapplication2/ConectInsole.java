@@ -45,7 +45,7 @@ import java.util.Queue;
 import java.util.UUID;
 
 public class ConectInsole {
-
+    private volatile boolean isDestroyed = false;
     private static final String TAG = "ConectInsoleBLE";
 
     // ===== UUIDs e nome do dispositivo =====
@@ -265,7 +265,16 @@ public class ConectInsole {
         }
 
         updateTimestamp();
-        FirebaseHelper.saveSendDataForPatient(firebasehelper, snapshot, context, evSnapshot, currentCpf, currentMode, currentSessionId);
+        FirebaseHelper.saveSendDataForPatientSide(
+                firebasehelper,
+                snapshot,
+                context,
+                currentCpf,
+                currentMode,
+                currentSessionId,
+                FirebaseHelper.Side.RIGHT
+        );
+
         Log.d(TAG, "flushToCloudNow: buffer enviado e zerado.");
     }
 
@@ -279,8 +288,9 @@ public class ConectInsole {
     // ===== Scan/Connect =====
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void startScanning() {
+        if (isDestroyed) return; // << guarda
         if (bluetoothScanner == null || isScanning || isConnecting || !checkBlePermissions()) {
-            handler.postDelayed(this::startScanning, 5000);
+            if (!isDestroyed) handler.postDelayed(this::startScanning, 5000);
             return;
         }
         isScanning = true;
@@ -521,7 +531,7 @@ public class ConectInsole {
         }
 
         handler.postDelayed(() -> {
-            if (!isScanning && !isConnecting) {
+            if (!isDestroyed && !isScanning && !isConnecting) {
                 startScanning();
             }
         }, backoffMs);
@@ -800,4 +810,46 @@ public class ConectInsole {
                     Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show());
         }
     }
+    // --- Adicione no topo da classe (junto dos outros flags):
+
+
+    // --- Adicione este método na classe:
+    @SuppressLint("MissingPermission")
+    public void shutdown() {
+        isDestroyed = true;
+
+        try { handler.removeCallbacksAndMessages(null); } catch (Exception ignore) {}
+
+        // para o scan se estiver ativo
+        try {
+            if (bluetoothScanner != null) {
+                bluetoothScanner.stopScan(scanCallback);
+            }
+        } catch (Exception ignore) {}
+        isScanning = false;
+        isConnecting = false;
+
+        // desmonta GATT com segurança
+        try {
+            if (bluetoothGatt != null) {
+                try { bluetoothGatt.disconnect(); } catch (Exception ignore) {}
+                try { bluetoothGatt.close(); } catch (Exception ignore) {}
+            }
+        } finally {
+            bluetoothGatt = null;
+        }
+
+        // limpa fila/estados
+        synchronized (commandQueue) { commandQueue.clear(); }
+        isGattOperationPending = false;
+        retryScheduled = false;
+        idleQueuedOnce = false;
+        notificationsReady = false;
+        servicesReady = false;
+        cccdWriteIssued = false;
+        cccdForDataEnabled = false;
+
+        Log.i(TAG, "shutdown(): BLE encerrado e estados limpos.");
+    }
+
 }
