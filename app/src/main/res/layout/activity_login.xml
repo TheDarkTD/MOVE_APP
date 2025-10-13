@@ -84,6 +84,8 @@
         android:textColorHighlight="@color/white"
         android:textColorLink="@color/white"
         android:textStyle="bold"
+        android:textAllCaps="false"
+        android:backgroundTint="#1565C0"
         app:layout_constraintBottom_toBottomOf="@id/guideline8h"
         app:layout_constraintEnd_toEndOf="@id/guideline8"
         app:layout_constraintHorizontal_bias="0.0"

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blue4"
+    android:background="@color/blue1"
     tools:context=".patient.PatientHubActivity">
 
 
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5"/>
+        app:layout_constraintGuide_percent="0.48"/>
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline55h"
         android:layout_width="match_parent"
@@ -28,11 +28,17 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.55"/>
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline95h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.95"/>
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline65h"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.65"/>
+        app:layout_constraintGuide_percent="0.63"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline1"
@@ -54,6 +60,9 @@
         android:layout_height="0dp"
         android:textSize="20dp"
         android:text="Cadastrar paciente"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1565C0"
         app:layout_constraintTop_toBottomOf="@id/guideline4h"
         app:layout_constraintBottom_toTopOf="@id/guideline5h"
         app:layout_constraintStart_toStartOf="@id/guideline1"
@@ -65,11 +74,28 @@
         android:layout_height="0dp"
         android:textSize="20dp"
         android:text="Buscar paciente"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1565C0"
         app:layout_constraintTop_toBottomOf="@id/guideline55h"
         app:layout_constraintBottom_toTopOf="@id/guideline65h"
         app:layout_constraintStart_toStartOf="@id/guideline1"
         app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:layout_marginTop="300dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline95h"
+        app:layout_constraintTop_toTopOf="@id/guideline5h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        tools:layout_editor_absoluteX="176dp"
+        tools:layout_editor_absoluteY="656dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,6 +7,33 @@ android:layout_height="match_parent"
 android:background="@color/blue1"
 tools:context=".Register.RegisterActivity">
 
+    <TextView
+        android:id="@+id/tvTitulo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Cadastrar paciente"
+        android:textColor="@android:color/white"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/guideline05h"
+        app:layout_constraintBottom_toTopOf="@id/guideline10h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
+
+    <!-- Subtítulo -->
+    <TextView
+        android:id="@+id/tvSubtitulo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Insira os dados do paciente"
+        android:textColor="#AFC2D5"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
+        app:layout_constraintTop_toTopOf="@id/guideline10h"
+        app:layout_constraintBottom_toTopOf="@id/guideline18h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
+
     <EditText
         android:id="@+id/etNome"
         android:layout_width="0dp"
@@ -92,7 +119,8 @@ tools:context=".Register.RegisterActivity">
     <Button android:id="@+id/btnSalvarPaciente"
         android:layout_width="0dp" android:layout_height="0dp"
         android:text="Salvar e continuar" android:textStyle="bold"
-        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1E88E5"
         app:layout_constraintTop_toBottomOf="@id/guideline75h"
         app:layout_constraintBottom_toTopOf="@id/guideline85h"
         app:layout_constraintStart_toStartOf="@id/guideline1"
@@ -110,19 +138,25 @@ tools:context=".Register.RegisterActivity">
     android:layout_height="match_parent"
     android:orientation="horizontal"
     app:layout_constraintGuide_percent="0.18"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline05h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1"/>
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline10h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.1"/>
+    app:layout_constraintGuide_percent="0.15"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline25h"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25"/>
+        app:layout_constraintGuide_percent="0.30"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline15h"
@@ -135,58 +169,58 @@ tools:context=".Register.RegisterActivity">
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.37"/>
+    app:layout_constraintGuide_percent="0.42"/>
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline39h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.39"/>
+    app:layout_constraintGuide_percent="0.44"/>
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline49h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.49"/>
+    app:layout_constraintGuide_percent="0.54"/>
 
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline51h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.51"/>
+    app:layout_constraintGuide_percent="0.56"/>
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline61h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.61"/>
+    app:layout_constraintGuide_percent="0.66"/>
 
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline63h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.63"/>
+    app:layout_constraintGuide_percent="0.68"/>
 
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline73h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.73"/>
+    app:layout_constraintGuide_percent="0.78"/>
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline75h"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.75"/>
+    app:layout_constraintGuide_percent="0.8"/>
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline85h"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.82"/>
+        app:layout_constraintGuide_percent="0.87"/>
 
 <androidx.constraintlayout.widget.Guideline
     android:id="@+id/guideline1"

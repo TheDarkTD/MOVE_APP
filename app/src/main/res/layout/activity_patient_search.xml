@@ -1,129 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:background="@color/blue1"
-tools:context=".patient.PatientHubActivity">
-
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A1B2E"
+    android:padding="24dp">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline25h"
+        android:id="@+id/guideline0h"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25"/>
+        app:layout_constraintGuide_percent="0.05"/>
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline35h"
+        android:id="@+id/guideline05h"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35"/>
-
-
-<androidx.constraintlayout.widget.Guideline
-    android:id="@+id/guideline37h"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.37"/>
+        app:layout_constraintGuide_percent="0.1"/>
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline45h"
+        android:id="@+id/guideline08h"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45"/>
-<androidx.constraintlayout.widget.Guideline
-    android:id="@+id/guideline5h"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.5"/>
-<androidx.constraintlayout.widget.Guideline
-    android:id="@+id/guideline85h"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.85"/>
-<androidx.constraintlayout.widget.Guideline
-    android:id="@+id/guideline95h"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    app:layout_constraintGuide_percent="0.928"/>
-
-<androidx.constraintlayout.widget.Guideline
-    android:id="@+id/guideline1"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    app:layout_constraintGuide_percent="0.1"/>
-<androidx.constraintlayout.widget.Guideline
-    android:id="@+id/guideline9"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    app:layout_constraintGuide_percent="0.9"/>
+        app:layout_constraintGuide_percent="0.13"/>
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline5"
+        android:id="@+id/guideline15h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.22"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline37h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.37"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.55"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline75h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.75"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline85h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.85"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline0v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.0"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5v"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline6v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="1"/>
 
+    <TextView
+        android:id="@+id/tvTitulo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Buscar paciente"
+        android:textColor="@android:color/white"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/guideline0h"
+        app:layout_constraintBottom_toTopOf="@id/guideline05h"
+        app:layout_constraintStart_toStartOf="@id/guideline0v"
+        app:layout_constraintEnd_toEndOf="@id/guideline5v"/>
 
+    <!-- Subtítulo -->
+    <TextView
+        android:id="@+id/tvSubtitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Insira o CPF para buscar os dados"
+        android:textColor="#AFC2D5"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
+        app:layout_constraintTop_toTopOf="@id/guideline05h"
+        app:layout_constraintBottom_toTopOf="@id/guideline08h"
+        app:layout_constraintStart_toStartOf="@id/guideline0v"
+        app:layout_constraintEnd_toEndOf="@id/guideline6v"/>
+
+    <!-- Campo de CPF -->
     <EditText
         android:id="@+id/etCPFSearch"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:hint="CPF"
-        android:textColor="@color/white" android:textColorHint="@color/white"
-        android:background="#005E4A4A" android:padding="10dp"
-        app:layout_constraintTop_toBottomOf="@id/guideline25h"
-        app:layout_constraintBottom_toTopOf="@id/guideline35h"
-        app:layout_constraintStart_toStartOf="@id/guideline1"
-        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
+        android:inputType="number"
+        android:backgroundTint="#CBD9E8"
+        android:textColor="@android:color/white"
+        android:textColorHint="#AFC2D5"
+        android:padding="12dp"
+        android:background="@drawable/edittext_bg"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitulo"
+        app:layout_constraintTop_toTopOf="@id/guideline08h"
+        app:layout_constraintBottom_toTopOf="@id/guideline15h"
+        app:layout_constraintStart_toStartOf="@id/guideline0v"
+        app:layout_constraintEnd_toEndOf="@id/guideline6v"
+        android:layout_marginTop="15dp"/>
 
-
-    <Button
+    <!-- Botão Buscar -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBuscar"
-        android:layout_width="0dp" android:layout_height="0dp"
-        android:text="Buscar" android:textStyle="bold"
-        android:backgroundTint="@color/blue3"
-        android:textColor="@color/blue2"
-        app:layout_constraintTop_toBottomOf="@id/guideline37h"
-        app:layout_constraintBottom_toTopOf="@id/guideline45h"
-        app:layout_constraintStart_toStartOf="@id/guideline5"
-        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Buscar"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1E88E5"
+        app:layout_constraintTop_toTopOf="@id/guideline08h"
+        app:layout_constraintBottom_toTopOf="@id/guideline15h"
+        app:layout_constraintStart_toStartOf="@id/guideline6v"
+        app:layout_constraintEnd_toEndOf="@id/guideline9v"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="15dp"/>
 
+    <!-- Card de resultado -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardResult"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="#CBD9E8"
+        app:layout_constraintTop_toBottomOf="@id/etCPFSearch"
+        app:layout_constraintTop_toTopOf="@id/guideline15h"
+        app:layout_constraintBottom_toTopOf="@id/guideline75h"
+        app:layout_constraintStart_toStartOf="@id/guideline0v"
+        app:layout_constraintEnd_toEndOf="@id/guideline9v">
 
-    <TextView
-        android:id="@+id/tvResult"
-        android:layout_width="0dp" android:layout_height="0dp"
-        android:background="#CDDDEB"
-        android:layout_marginBottom="10dp"
-        android:textColor="@color/black" android:textSize="16sp"
-        android:text="Faça a busca para visualizar os dados."
-        app:layout_constraintTop_toBottomOf="@id/guideline5h"
-        app:layout_constraintBottom_toTopOf="@id/guideline85h"
-        app:layout_constraintStart_toStartOf="@id/guideline1"
-        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
+        <TextView
+            android:id="@+id/tvResult"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="Faça a busca para visualizar os dados."
+            android:textColor="#0A1B2E"
+            android:textSize="16sp" />
+    </com.google.android.material.card.MaterialCardView>
 
-
-    <Button
+    <!-- Botão usar paciente -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnUsarPaciente"
-        android:layout_width="0dp" android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text="Usar este paciente"
         android:enabled="false"
-        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"
-        app:layout_constraintTop_toBottomOf="@id/guideline85h"
-        app:layout_constraintBottom_toTopOf="@id/guideline95h"
-        app:layout_constraintStart_toStartOf="@id/guideline1"
-        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
-
-
-
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#1565C0"
+        app:layout_constraintTop_toTopOf="@id/guideline75h"
+        app:layout_constraintBottom_toTopOf="@id/guideline85h"
+        app:layout_constraintStart_toStartOf="@id/guideline0v"
+        app:layout_constraintEnd_toEndOf="@id/guideline9v"
+        android:layout_marginTop="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
