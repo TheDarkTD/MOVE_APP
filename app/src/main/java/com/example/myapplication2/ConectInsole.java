@@ -651,7 +651,7 @@ public class ConectInsole {
         Log.d(TAG, String.format(Locale.getDefault(),
                 "createAndSendConfigData: cmd=0x%02X, freq=%d", kcmd, kfreq));
         ConfigData configData = new ConfigData();
-        configData.cmd  = kcmd; configData.freq = 50;
+        configData.cmd  = kcmd; configData.freq = 30;
         configData.S1 = kS1; configData.S2 = kS2; configData.S3 = kS3;
         configData.S4 = kS4; configData.S5 = kS5; configData.S6 = kS6;
         configData.S7 = kS7; configData.S8 = kS8; configData.S9 = kS9;
