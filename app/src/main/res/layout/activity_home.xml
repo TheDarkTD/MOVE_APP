@@ -6,7 +6,7 @@
     android:id="@+id/homeRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#FFFFFF"
     tools:context=".Home.HomeActivity">
 
     <!-- Toolbar com botão de voltar -->
@@ -23,6 +23,77 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.01"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline95h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.85"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.99"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline45"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.45"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline55"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.55"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline90h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.87"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline97h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.94"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1"/>
+
+
+
     <!-- Área de mostradores (mantida): rolagem horizontal com os dois pés -->
     <HorizontalScrollView
         android:id="@+id/horiscroll"
@@ -31,21 +102,22 @@
         android:fillViewport="true"
         android:overScrollMode="never"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/topAppBar"
-        app:layout_constraintBottom_toTopOf="@id/actionsRow"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp">
+        app:layout_constraintTop_toBottomOf="@id/guideline1h"
+        app:layout_constraintBottom_toTopOf="@id/guideline9h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        >
 
         <LinearLayout
             android:id="@+id/innerLay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/guideline1h"
+            app:layout_constraintBottom_toTopOf="@id/guideline9h"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintEnd_toEndOf="@id/guideline9">
 
             <!-- PÉ ESQUERDO -->
             <FrameLayout
@@ -89,41 +161,61 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <!-- Linha de ações: Iniciar / Parar -->
-    <LinearLayout
-        android:id="@+id/actionsRow"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/buttonIniciar"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:text="Iniciar"
             android:textStyle="bold"
             android:textColor="@color/blue2"
             android:backgroundTint="@color/blue3"
-            android:layout_marginEnd="12dp"/>
+            android:layout_marginEnd="12dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline97h"
+            app:layout_constraintStart_toStartOf="@id/guideline1v"
+            app:layout_constraintEnd_toEndOf="@id/guideline9v"
+            app:layout_constraintTop_toTopOf="@id/guideline90h"/>
 
-        <Button
-            android:id="@+id/buttonparar"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:text="Parar"
-            android:textStyle="bold"
-            android:textColor="@color/blue2"
-            android:backgroundTint="@color/blue3"
-            android:layout_marginStart="12dp"/>
-    </LinearLayout>
+    <Button
+        android:id="@+id/buttonParar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Parar"
+        android:textStyle="bold"
+        android:textColor="@color/blue2"
+        android:backgroundTint="@color/blue3"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline97h"
+        app:layout_constraintStart_toStartOf="@id/guideline1v"
+        app:layout_constraintEnd_toEndOf="@id/guideline9v"
+        app:layout_constraintTop_toTopOf="@id/guideline90h"/>
+
+    <CheckBox
+        android:id="@+id/onlyR"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:text="Apenas pé direito"
+        tools:layout_editor_absoluteX="12dp"
+        tools:layout_editor_absoluteY="616dp"
+        app:layout_constraintTop_toBottomOf="@id/guideline9h"
+        app:layout_constraintBottom_toTopOf="@id/guideline95h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline45"/>
+
+    <CheckBox
+        android:id="@+id/onlyL"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="10dp"
+        android:text="Apenas pé esquerdo"
+        tools:layout_editor_absoluteX="12dp"
+        tools:layout_editor_absoluteY="616dp"
+        app:layout_constraintTop_toBottomOf="@id/guideline9h"
+        app:layout_constraintBottom_toTopOf="@id/guideline95h"
+        app:layout_constraintStart_toStartOf="@id/guideline55"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,129 +9,233 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
-        android:layout_width="415dp"
-        android:layout_height="35dp"
-        android:layout_marginBottom="24dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="#304463"
         android:backgroundTint="@color/blue1"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/guideline1h"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/guideline0h"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.05"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline0h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.0"/>
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="360dp"
         android:layout_height="62dp"
+        android:autoSizeTextType="uniform"
         android:text="@string/Register1"
         android:textAlignment="center"
         android:textColor="@color/blue2"
         android:textSize="21sp"
-        app:layout_constraintBottom_toTopOf="@+id/name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintBottom_toTopOf="@+id/guideline27h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/guideline18h"
+        app:layout_constraintVertical_bias="0.0" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline27h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.27"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline18h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.18"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline10h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1"/>
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autoSizeTextType="uniform"
         android:text="@string/Register2"
         android:textColor="@color/blue2"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.107" />
+        app:layout_constraintBottom_toBottomOf="@id/guideline18h"
+        app:layout_constraintEnd_toEndOf="@id/guideline8"
+        app:layout_constraintHorizontal_bias="0.46"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toTopOf="@id/guideline10h"
+        app:layout_constraintVertical_bias="0.0" />
 
     <EditText
         android:id="@+id/name"
-        android:layout_width="379dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/gray_600"
         android:ems="10"
         android:hint="@string/name"
+        android:autoSizeTextType="uniform"
         android:inputType="textPersonName"
         android:padding="10dp"
         android:textColor="@color/blue2"
         android:textColorHint="@color/blue2"
-        app:layout_constraintBottom_toTopOf="@+id/surname"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/guideline37h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/guideline3h"
         app:layout_constraintVertical_bias="0.932" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.3"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline37h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.37"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline39h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.39"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline46h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.46"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline48h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.48"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline55h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.55"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline57h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.57"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline64h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.64"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline66h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.66"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline73h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.73"/>
+
+
 
     <EditText
         android:id="@+id/email"
-        android:layout_width="379dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/gray_600"
         android:ems="10"
         android:hint="@string/email"
+        android:autoSizeTextType="uniform"
         android:inputType="textEmailAddress"
         android:padding="10dp"
         android:textColor="@color/blue2"
         android:textColorHint="@color/blue2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintBottom_toBottomOf="@id/guideline55h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/guideline48h"
         app:layout_constraintVertical_bias="0.426" />
 
     <EditText
         android:id="@+id/password2"
-        android:layout_width="379dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/gray_600"
         android:ems="10"
         android:hint="@string/confirm"
+        android:autoSizeTextType="uniform"
         android:inputType="textPassword"
         android:padding="10dp"
         android:textColor="@color/blue2"
         android:textColorHint="@color/blue2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password"
+        app:layout_constraintBottom_toBottomOf="@id/guideline73h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/guideline66h"
         app:layout_constraintVertical_bias="0.05" />
 
     <EditText
         android:id="@+id/password"
-        android:layout_width="379dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/gray_600"
         android:ems="10"
         android:hint="@string/password"
+        android:autoSizeTextType="uniform"
         android:inputType="textPassword"
         android:padding="10dp"
         android:textColor="@color/blue2"
         android:textColorHint="@color/blue2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/fragmentContainerView"
+        app:layout_constraintBottom_toBottomOf="@id/guideline64h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toTopOf="@+id/guideline57h"
         app:layout_constraintVertical_bias="0.607" />
 
     <EditText
         android:id="@+id/surname"
-        android:layout_width="379dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/gray_600"
         android:ems="10"
         android:hint="@string/surname"
+        android:autoSizeTextType="uniform"
         android:inputType="textPersonName"
         android:padding="10dp"
         android:textColor="@color/blue2"
         android:textColorHint="@color/blue2"
-        app:layout_constraintBottom_toTopOf="@+id/email"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintBottom_toBottomOf="@id/guideline46h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/guideline39h"
         app:layout_constraintVertical_bias="0.902" />
 
     <Button
@@ -141,6 +245,7 @@
         android:background="@drawable/roundstyle"
         android:backgroundTint="@color/blue1"
         android:text="@string/next"
+        android:autoSizeTextType="uniform"
         android:textColor="@color/white"
         android:textColorHighlight="#4D6A96"
         android:textColorHint="#3F51B5"
@@ -150,7 +255,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.86"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password"
+        app:layout_constraintTop_toBottomOf="@+id/guideline73h"
         app:layout_constraintVertical_bias="0.801" />
 
     <TextView
@@ -158,6 +263,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="148dp"
+        android:autoSizeTextType="uniform"
         android:text="@string/logback"
         android:textColor="@color/blue2"
         android:textSize="18sp"
@@ -165,6 +271,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password"
-        app:layout_constraintVertical_bias="0.014" />
+        app:layout_constraintVertical_bias="0.142" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.20"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline8"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.80"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

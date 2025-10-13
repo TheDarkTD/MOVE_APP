@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -53,6 +54,7 @@ public class HomeActivity extends AppCompatActivity {
 
     // ====== UI: mostradores e máscaras ======
     private FrameLayout frameL, frameR;
+    private CheckBox onlyR, onlyL;
     private HeatMapViewL heatmapViewL;
     private HeatMapViewR heatmapViewR;
     private ImageView maskL, maskR;
@@ -116,7 +118,9 @@ public class HomeActivity extends AppCompatActivity {
         frameL = findViewById(R.id.frameL);
         frameR = findViewById(R.id.frameR);
 
-        PARAR   = findViewById(R.id.buttonparar);
+        onlyL = findViewById(R.id.onlyL);
+        onlyR = findViewById(R.id.onlyR);
+        PARAR   = findViewById(R.id.buttonParar);
         INICIAR = findViewById(R.id.buttonIniciar);
     }
 
@@ -125,6 +129,8 @@ public class HomeActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart: entered");
+
+        PARAR.setVisibility(View.GONE);
 
         // Inicia serviços existentes
         startService(new Intent(this, AppForegroundService.class));
@@ -180,6 +186,41 @@ public class HomeActivity extends AppCompatActivity {
         if ("true".equals(followInLeft))  loadColorsL();
         if ("true".equals(followInRight)) loadColorsR();
 
+
+        onlyL.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Desmarca a outra
+                onlyR.setChecked(false);
+
+                // Mostra apenas o frame esquerdo
+                frameL.setVisibility(View.VISIBLE);
+                frameR.setVisibility(View.GONE);
+            } else {
+                // Se desmarcar a última, mostra ambos
+                if (!onlyR.isChecked()) {
+                    frameL.setVisibility(View.VISIBLE);
+                    frameR.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        onlyR.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Desmarca a outra
+                onlyL.setChecked(false);
+
+                // Mostra apenas o frame direito
+                frameR.setVisibility(View.VISIBLE);
+                frameL.setVisibility(View.GONE);
+            } else {
+                // Se desmarcar a última, mostra ambos
+                if (!onlyL.isChecked()) {
+                    frameL.setVisibility(View.VISIBLE);
+                    frameR.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
     }
 
     // ====== Controle do ciclo start/stop ======
@@ -191,6 +232,8 @@ public class HomeActivity extends AppCompatActivity {
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private void startSession(byte freq) {
         if (running) return;
+        PARAR.setVisibility(View.VISIBLE);
+        INICIAR.setVisibility(View.GONE);
         running = true;
         sessionId = newSessionId();
         Log.d(TAG, "startSession: sessionId=" + sessionId + ", mode=" + mode + ", cpf=" + cpf);
@@ -225,6 +268,8 @@ public class HomeActivity extends AppCompatActivity {
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private void stopSession() {
         if (!running) return;
+        PARAR.setVisibility(View.GONE);
+        INICIAR.setVisibility(View.VISIBLE);
         running = false;
         autoStopHandler.removeCallbacksAndMessages(null);
 

@@ -1,36 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:gravity="center"
-    android:padding="24dp" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/blue1">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/blue1"
+tools:context=".Register.RegisterActivity">
 
     <TextView
         android:id="@+id/tvCpf"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:textColor="@color/white" android:textSize="18sp"
-        android:text="CPF:"/>
-
-    <Space android:layout_width="0dp" android:layout_height="24dp"/>
+        android:text="CPF:"
+        app:layout_constraintTop_toBottomOf="@id/guideline17h"
+        app:layout_constraintBottom_toTopOf="@id/guideline25h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
     <Button
         android:id="@+id/btnEstatico"
-        android:layout_width="match_parent" android:layout_height="56dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text="Exame Estático (10s)"
-        android:textStyle="bold" android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
-
-    <Space android:layout_width="0dp" android:layout_height="12dp"/>
+        android:textStyle="bold"
+        android:backgroundTint="@color/blue3"
+        android:textColor="@color/blue2"
+        app:layout_constraintTop_toBottomOf="@id/guideline27h"
+        app:layout_constraintBottom_toTopOf="@id/guideline37h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
     <Button
         android:id="@+id/btnMovimento"
-        android:layout_width="match_parent" android:layout_height="56dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text="Exame em Movimento"
-        android:textStyle="bold" android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
+        android:textStyle="bold"
+        android:backgroundTint="@color/blue3"
+        android:textColor="@color/blue2"
+        app:layout_constraintTop_toBottomOf="@id/guideline39h"
+        app:layout_constraintBottom_toTopOf="@id/guideline49h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
-    <Space android:layout_width="0dp" android:layout_height="24dp"/>
 
     <Button
         android:id="@+id/btnBackToHub"
-        android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="15dp"
         android:text="Voltar"
-        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
-</LinearLayout>
+        android:backgroundTint="@color/blue3"
+        android:textColor="@color/blue2"
+        app:layout_constraintTop_toBottomOf="@id/guideline51h"
+        app:layout_constraintBottom_toTopOf="@id/guideline61h"
+        app:layout_constraintStart_toStartOf="@id/guideline5"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
+
+
+
+    <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline27h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.27"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline17h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.17" />
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline25h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.25"/>
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline37h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.37"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline39h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.39"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline49h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.49"/>
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline51h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.51"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline61h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.61"/>
+
+
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.05"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline9"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.95"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

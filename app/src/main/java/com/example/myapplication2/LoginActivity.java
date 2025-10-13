@@ -1,16 +1,12 @@
 // app/src/main/java/com/example/myapplication2/LoginActivity.java
 package com.example.myapplication2;
 
-import static android.content.ContentValues.TAG;
-import static com.example.myapplication2.Settings.SettingsActivity.SHARED_PREFS;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;

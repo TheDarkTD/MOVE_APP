@@ -1,82 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/blue1" android:padding="16dp">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/blue1"
+tools:context=".Register.RegisterActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical">
+    <EditText
+        android:id="@+id/etNome"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#005E4A4A"
+        android:hint="Nome"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/guideline15h"
+        app:layout_constraintBottom_toTopOf="@id/guideline25h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
-        <EditText
-            android:id="@+id/etNome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#005E4A4A"
-            android:hint="Nome"
-            android:minHeight="48dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
 
-        <Space android:layout_width="0dp" android:layout_height="8dp"/>
+    <EditText
+        android:id="@+id/etCPF"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#005E4A4A"
+        android:hint="CPF (obrigatório)"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/guideline37h"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@id/guideline27h" />
 
-        <EditText
-            android:id="@+id/etCPF"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#005E4A4A"
-            android:hint="CPF (obrigatório)"
-            android:minHeight="48dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
 
-        <Space android:layout_width="0dp" android:layout_height="8dp"/>
+    <EditText
+        android:id="@+id/etPeso"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#005E4A4A"
+        android:hint="Peso (kg)"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/guideline39h"
+        app:layout_constraintBottom_toTopOf="@id/guideline49h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
-        <EditText
-            android:id="@+id/etPeso"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#005E4A4A"
-            android:hint="Peso (kg)"
-            android:inputType="numberDecimal"
-            android:minHeight="48dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
 
-        <Space android:layout_width="0dp" android:layout_height="8dp"/>
+    <EditText
+        android:id="@+id/etAltura"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#005E4A4A"
+        android:hint="Altura (m)"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/guideline51h"
+        app:layout_constraintBottom_toTopOf="@id/guideline61h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
-        <EditText
-            android:id="@+id/etAltura"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#005E4A4A"
-            android:hint="Altura (m)"
-            android:inputType="numberDecimal"
-            android:minHeight="48dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
 
-        <Space android:layout_width="0dp" android:layout_height="8dp"/>
+    <EditText
+        android:id="@+id/etCalcado"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#005E4A4A"
+        android:hint="Tamanho do calçado (opcional)"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/guideline63h"
+        app:layout_constraintBottom_toTopOf="@id/guideline73h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
-        <EditText
-            android:id="@+id/etCalcado"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#005E4A4A"
-            android:hint="Tamanho do calçado (opcional)"
-            android:minHeight="48dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
 
-        <Space android:layout_width="0dp" android:layout_height="16dp"/>
+    <Button android:id="@+id/btnSalvarPaciente"
+        android:layout_width="0dp" android:layout_height="0dp"
+        android:text="Salvar e continuar" android:textStyle="bold"
+        android:backgroundTint="@color/blue3" android:textColor="@color/blue2"
+        app:layout_constraintTop_toBottomOf="@id/guideline75h"
+        app:layout_constraintBottom_toTopOf="@id/guideline85h"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="@id/guideline9"/>
 
-        <Button android:id="@+id/btnSalvarPaciente"
-            android:layout_width="match_parent" android:layout_height="56dp"
-            android:text="Salvar e continuar" android:textStyle="bold"
-            android:backgroundTint="@color/blue3" android:textColor="@color/blue2"/>
-    </LinearLayout>
-</ScrollView>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline27h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.27"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline18h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.18"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline10h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.1"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline25h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline15h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="110dp" />
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline37h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.37"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline39h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.39"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline49h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.49"/>
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline51h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.51"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline61h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.61"/>
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline63h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.63"/>
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline73h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.73"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline75h"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.75"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline85h"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.82"/>
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.05"/>
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline9"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.95"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
