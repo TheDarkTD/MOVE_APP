@@ -1,6 +1,7 @@
 package com.example.myapplication2.Home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,7 +42,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final String TAG = HomeActivity.class.getSimpleName();
 
     // ====== Extras do exame ======
-    public static final String EXTRA_CPF  = "extra_cpf";
+    public static final String EXTRA_CPF = "extra_cpf";
     public static final String EXTRA_MODE = "extra_mode"; // "movimento" | "estatico"
 
     private String cpf;
@@ -48,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
     private String sessionId;
     private boolean running = false;
     private final Handler autoStopHandler = new Handler(Looper.getMainLooper());
-
+    private final Handler autoStartHandler = new Handler(Looper.getMainLooper());
     // ====== Preferências / seleção de pés ======
     private SharedPreferences sharedPreferences;
     private String followInRight, followInLeft;
@@ -73,7 +75,7 @@ public class HomeActivity extends AppCompatActivity {
     // ====== Regiões dos heatmaps ======
     private final List<HeatMapViewL.SensorRegionL> sensoresL = new ArrayList<>();
     private final List<HeatMapViewR.SensorRegionR> sensoresR = new ArrayList<>();
-
+    private TextView sttconectR1, sttconectR2, sttconectL1, sttconectL2;
     // ====== Conectores BLE ======
     private ConectInsole conectar;   // direito
     private ConectInsole2 conectar2; // esquerdo
@@ -96,7 +98,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         // Recebe CPF e MODO do exame
-        cpf  = getIntent().getStringExtra(EXTRA_CPF);
+        cpf = getIntent().getStringExtra(EXTRA_CPF);
         mode = getIntent().getStringExtra(EXTRA_MODE);
         if (cpf == null || mode == null) {
             // fallback seguro
@@ -109,7 +111,7 @@ public class HomeActivity extends AppCompatActivity {
         // Preferência de quais pés acompanhar
         sharedPreferences = getSharedPreferences("My_Appinsolesamount", MODE_PRIVATE);
         followInRight = sharedPreferences.getString("Sright", "default");
-        followInLeft  = sharedPreferences.getString("Sleft", "default");
+        followInLeft = sharedPreferences.getString("Sleft", "default");
 
         // Views
         heatmapViewL = findViewById(R.id.heatmapViewL);
@@ -118,10 +120,14 @@ public class HomeActivity extends AppCompatActivity {
         maskR = findViewById(R.id.imageView8);
         frameL = findViewById(R.id.frameL);
         frameR = findViewById(R.id.frameR);
-        onlyL=findViewById(R.id.onlyL);
-        onlyR=findViewById(R.id.onlyR);
-
-        PARAR   = findViewById(R.id.buttonParar);
+        onlyL = findViewById(R.id.onlyL);
+        onlyR = findViewById(R.id.onlyR);
+        //textview indica status de conexão
+        sttconectL1 = findViewById(R.id.conectL);
+        sttconectL2 = findViewById(R.id.desconectL);
+        sttconectR1 = findViewById(R.id.conectR);
+        sttconectR2 = findViewById(R.id.desconectR);
+        PARAR = findViewById(R.id.buttonParar);
         INICIAR = findViewById(R.id.buttonIniciar);
     }
 
@@ -131,14 +137,17 @@ public class HomeActivity extends AppCompatActivity {
         super.onStart();
         Log.d(TAG, "onStart: entered");
         PARAR.setVisibility(View.GONE);
+        conectar = new ConectInsole(this);
+        conectar2 = new ConectInsole2(this);
+        autoStartHandler.postDelayed(() -> {
 
+        }, 500);
         // Inicia serviços existentes
         startService(new Intent(this, AppForegroundService.class));
         startService(new Intent(this, DataCaptureService.class));
 
         // Instancia conectores (não envia 3A aqui — só ao clicar em Iniciar)
-        conectar  = new ConectInsole(this);
-        conectar2 = new ConectInsole2(this);
+
 
         onlyL.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -226,13 +235,15 @@ public class HomeActivity extends AppCompatActivity {
                         conectar.flushToCloudNow();
                         conectar.enableBuffering(false);
                         conectar.createAndSendConfigData((byte) 0x3B, (byte) 1, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-                    } catch (Exception ignore) {}
+                    } catch (Exception ignore) {
+                    }
 
                     try {
                         conectar2.flushToCloudNow();
                         conectar2.enableBuffering(false);
                         conectar2.createAndSendConfigData((byte) 0x3B, (byte) 1, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-                    } catch (Exception ignore) {}
+                    } catch (Exception ignore) {
+                    }
                 }, 10_000);
             }
         });
@@ -244,13 +255,15 @@ public class HomeActivity extends AppCompatActivity {
                 conectar.flushToCloudNow();
                 conectar.enableBuffering(false);
                 conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
 
             try {
                 conectar2.flushToCloudNow();
                 conectar2.enableBuffering(false);
                 conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         });
     }
 
@@ -312,7 +325,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "loadColorsL: called");
-        SharedPreferences prefs = getSharedPreferences("My_Appinsolereadings2", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("My_Appinsolereadings", MODE_PRIVATE);
         short[][] sensorReadings = loadSensorReadings2(prefs);
         Log.d(TAG, "loadColorsL: sensorReadings=" + Arrays.deepToString(sensorReadings));
 
@@ -351,7 +364,7 @@ public class HomeActivity extends AppCompatActivity {
     // ====== Leitura das prefs (direito) ======
     private short[][] loadSensorReadings(SharedPreferences prefs) {
         Log.d(TAG, "loadSensorReadings: called");
-        String[] keys = {"S1_1","S2_1","S3_1","S4_1","S5_1","S6_1","S7_1","S8_1","S9_1"};
+        String[] keys = {"S1_1", "S2_1", "S3_1", "S4_1", "S5_1", "S6_1", "S7_1", "S8_1", "S9_1"};
         short[][] readings = new short[9][];
         for (int i = 0; i < 9; i++) {
             String data = prefs.getString(keys[i], "[]");
@@ -364,7 +377,7 @@ public class HomeActivity extends AppCompatActivity {
     // ====== Leitura das prefs (esquerdo) ======
     private short[][] loadSensorReadings2(SharedPreferences prefs) {
         Log.d(TAG, "loadSensorReadings2: called");
-        String[] keys = {"S1_2","S2_2","S3_2","S4_2","S5_2","S6_2","S7_2","S8_2","S9_2"};
+        String[] keys = {"S1_2", "S2_2", "S3_2", "S4_2", "S5_2", "S6_2", "S7_2", "S8_2", "S9_2"};
         short[][] readings = new short[9][];
         for (int i = 0; i < 9; i++) {
             String data = prefs.getString(keys[i], "[]");
@@ -391,7 +404,9 @@ public class HomeActivity extends AppCompatActivity {
         return result;
     }
 
-    public interface Listener { void onNewReading(); } // simples
+    public interface Listener {
+        void onNewReading();
+    } // simples
 
     // ====== NOVO: limpeza total de BLE e serviços ao sair da Home ======
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -399,32 +414,50 @@ public class HomeActivity extends AppCompatActivity {
         Log.i(TAG, "cleanupBleAndServices(): iniciando teardown BLE/handlers/serviços");
 
         // Cancela auto-stop pendente do modo estático
-        try { autoStopHandler.removeCallbacksAndMessages(null); } catch (Exception ignore) {}
+        try {
+            autoStopHandler.removeCallbacksAndMessages(null);
+        } catch (Exception ignore) {
+        }
 
         // Opcional: envie STOP (0x3B) rapidamente antes de desmontar (best-effort)
-        try { if (conectar != null)
-            conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
-        } catch (Exception ignore) {}
-        try { if (conectar2 != null)
-            conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
-        } catch (Exception ignore) {}
+        try {
+            if (conectar != null)
+                conectar.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_1, S2_1, S3_1, S4_1, S5_1, S6_1, S7_1, S8_1, S9_1);
+        } catch (Exception ignore) {
+        }
+        try {
+            if (conectar2 != null)
+                conectar2.createAndSendConfigData((byte) 0x3B, (byte) 0, S1_2, S2_2, S3_2, S4_2, S5_2, S6_2, S7_2, S8_2, S9_2);
+        } catch (Exception ignore) {
+        }
 
         // Desmonta BLE (usa o shutdown() que você adicionou nas classes)
-        try { if (conectar != null)  conectar.shutdown(); } catch (Exception ignore) {}
-        try { if (conectar2 != null) conectar2.shutdown(); } catch (Exception ignore) {}
-        conectar  = null;
+        try {
+            if (conectar != null) conectar.shutdown();
+        } catch (Exception ignore) {
+        }
+        try {
+            if (conectar2 != null) conectar2.shutdown();
+        } catch (Exception ignore) {
+        }
+        conectar = null;
         conectar2 = null;
 
         // Para serviços relacionados à captura (se a Home é quem comanda)
-        try { stopService(new Intent(this, DataCaptureService.class)); } catch (Exception ignore) {}
+        try {
+            stopService(new Intent(this, DataCaptureService.class));
+        } catch (Exception ignore) {
+        }
         // Se o AppForegroundService for específico da Home, pode parar também:
         // try { stopService(new Intent(this, AppForegroundService.class)); } catch (Exception ignore) {}
 
         // Zera referências de UI (ajuda GC; opcional)
         heatmapViewL = null;
         heatmapViewR = null;
-        frameL = null; frameR = null;
-        maskL = null; maskR = null;
+        frameL = null;
+        frameR = null;
+        maskL = null;
+        maskR = null;
 
         // Zera caches locais (opcional)
         lastLeituraL = null;
@@ -434,13 +467,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    @Override protected void onStop() {
+    @Override
+    protected void onStop() {
         super.onStop();
         cleanupBleAndServices();
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
         cleanupBleAndServices();
     }
